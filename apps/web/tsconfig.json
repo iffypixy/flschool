@@ -26,7 +26,8 @@
 		"paths": {
 			"@features/*": ["./src/features", "./src/features*"],
 			"@shared/*": ["./src/shared", "./src/shared/*"],
-			"@entities/*": ["./src/entities", "./src/entities/*"]
+			"@entities/*": ["./src/entities", "./src/entities/*"],
+			"@pages/*": ["./src/pages", "./src/pages/*"]
 		}
 	},
 	"include": ["src"],
