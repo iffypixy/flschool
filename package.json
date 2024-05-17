@@ -1,15 +1,16 @@
 {
-    "name": "flschool",
-    "version": "0.1.0",
-    "scripts": {
-        "format": "prettier --write \"**/*.{js,ts,jsx,tsx,mjs,cjs,json,css,scss,sass,html}\""
-    },
-    "author": "Ansat Euler <iffypixy@gmail.com>",
-    "license": "MIT",
-    "devDependencies": {
-        "@commitlint/cli": "^19.3.0",
-        "@commitlint/config-conventional": "^19.2.2",
-        "husky": "^8.0.3",
-        "prettier": "^3.2.5"
-    }
+	"name": "flschool",
+	"version": "0.1.0",
+	"scripts": {
+		"format": "prettier --write \"**/*.{js,ts,jsx,tsx,mjs,cjs,json,css,scss,sass,html}\""
+	},
+	"author": "Ansat Euler <iffypixy@gmail.com>",
+	"license": "MIT",
+	"devDependencies": {
+		"@commitlint/cli": "^19.3.0",
+		"@commitlint/config-conventional": "^19.2.2",
+		"husky": "^8.0.3",
+		"lint-staged": "^15.2.2",
+		"prettier": "^3.2.5"
+	}
 }
