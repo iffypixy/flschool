@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	html {
+		font-size: 62.5%;
+		box-sizing: border-box;
+
+		@media screen(xl) {
+			font-size: 55%;
+		}
+
+		@media screen(lg) {
+			font-size: 50%;
+		}
+
+		@media screen(md) {
+			font-size: 45%;
+		}
+
+		@media screen(sm) {
+			font-size: 40%;
+		}
+
+		@media screen(xs) {
+			font-size: 35%;
+		}
+	}
+
+	*,
+	*::before,
+	*::after {
+		box-sizing: inherit;
+		margin: 0;
+		padding: 0;
+	}
+
+	body {
+		font-size: 1.6rem;
+		@apply font-gotham;
+	}
+}
+
+@font-face {
+	font-family: "Gotham";
+	font-weight: 300;
+	src:
+		local("Gotham"),
+		url("@fonts/Gotham/Gotham-Light.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Gotham";
+	font-weight: 400;
+	src:
+		local("Gotham"),
+		url("@fonts/Gotham/Gotham-Regular.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Gotham";
+	font-weight: 500;
+	src:
+		local("Gotham"),
+		url("@fonts/Gotham/Gotham-Medium.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Gotham";
+	font-weight: 700;
+	src:
+		local("Gotham"),
+		url("@fonts/Gotham/Gotham-Bold.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Gotham";
+	font-weight: 900;
+	src:
+		local("Gotham"),
+		url("@fonts/Gotham/Gotham-Black.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Manrope";
+	font-weight: 300;
+	src:
+		local("Manrope"),
+		url("@fonts/Manrope/Manrope-Light.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Manrope";
+	font-weight: 400;
+	src:
+		local("Manrope"),
+		url("@fonts/Manrope/Manrope-Regular.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Manrope";
+	font-weight: 500;
+	src:
+		local("Manrope"),
+		url("@fonts/Manrope/Manrope-Medium.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Manrope";
+	font-weight: 600;
+	src:
+		local("Manrope"),
+		url("@fonts/Manrope/Manrope-SemiBold.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Manrope";
+	font-weight: 700;
+	src:
+		local("Manrope"),
+		url("@fonts/Manrope/Manrope-Bold.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Gilroy";
+	font-weight: 300;
+	src:
+		local("Gilroy"),
+		url("@fonts/Gilroy/Gilroy-Light.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Gilroy";
+	font-weight: 400;
+	src:
+		local("Gilroy"),
+		url("@fonts/Gilroy/Gilroy-Regular.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Gilroy";
+	font-weight: 500;
+	src:
+		local("Gilroy"),
+		url("@fonts/Gilroy/Gilroy-Medium.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Gilroy";
+	font-weight: 600;
+	src:
+		local("Gilroy"),
+		url("@fonts/Gilroy/Gilroy-Semibold.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Gilroy";
+	font-weight: 700;
+	src:
+		local("Gilroy"),
+		url("@fonts/Gilroy/Gilroy-Bold.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Gilroy";
+	font-weight: 900;
+	src:
+		local("Gilroy"),
+		url("@fonts/Gilroy/Gilroy-Black.woff2") format("woff2");
+}
