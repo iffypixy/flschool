@@ -24,12 +24,12 @@
 		/* paths/aliases */
 		"baseUrl": "./",
 		"paths": {
-			"@features/*": ["./src/features", "./src/features*"],
+			"@features/*": ["./src/features", "./src/features/*"],
 			"@shared/*": ["./src/shared", "./src/shared/*"],
 			"@entities/*": ["./src/entities", "./src/entities/*"],
 			"@pages/*": ["./src/pages", "./src/pages/*"]
 		}
 	},
-	"include": ["src"],
+	"include": ["src", "types"],
 	"references": [{"path": "./tsconfig.vite.json"}]
 }
