@@ -3,6 +3,8 @@ import {cx} from "class-variance-authority";
 
 import {Icon} from "@shared/ui/icons";
 
+import "slick-carousel/slick/slick.css";
+
 import "./index.css";
 
 const ArrowLeft: React.FC = () => (
