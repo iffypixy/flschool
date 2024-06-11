@@ -5,7 +5,7 @@ import {
 	Button,
 	Container,
 	DropdownContent,
-	DropdownRoot,
+	Dropdown,
 	DropdownTrigger,
 	GradientButton,
 	Icon,
@@ -33,7 +33,7 @@ export const HomePage: React.FC = () => (
 					<Logo />
 
 					<nav className="xs:hidden">
-						<ul className="flex items-center space-x-[4rem] font-medium text-[1.4rem] text-black">
+						<ul className="flex items-center space-x-[4rem] font-medium text-[1.4rem] text-[#151515]">
 							<li>Freelance teams</li>
 							<li>Образование</li>
 							<li>Эксперты</li>
@@ -43,9 +43,9 @@ export const HomePage: React.FC = () => (
 					</nav>
 
 					<div className="flex items-center space-x-24">
-						<DropdownRoot>
+						<Dropdown>
 							<DropdownTrigger>
-								<span className="inline-flex space-x-8 items-center text-black font-medium text-[1.4rem]">
+								<span className="inline-flex space-x-8 items-center text-[#151515] font-medium text-[1.4rem]">
 									<span>RU</span>
 
 									<Icon.Chevron.Down className="w-8 h-4" />
@@ -53,7 +53,7 @@ export const HomePage: React.FC = () => (
 							</DropdownTrigger>
 
 							<DropdownContent></DropdownContent>
-						</DropdownRoot>
+						</Dropdown>
 
 						<Button>Войти</Button>
 					</div>
@@ -66,7 +66,7 @@ export const HomePage: React.FC = () => (
 				<Container>
 					<div className="flex space-x-12 justify-between xs:flex-wrap xs:space-x-0">
 						<div className="flex flex-col w-[50%] space-y-40 text-[#434343] xs:w-full">
-							<h1 className="font-bold text-[6.4rem] whitespace-pre-line leading-[7.6rem]">
+							<h1 className="font-bold text-[6.4rem] [#fbfbfb] space-pre-line leading-[7.6rem]">
 								Онлайн обучение{"\n"}
 								<span className="text-primary">#без</span>{" "}
 								границ
@@ -134,7 +134,7 @@ export const HomePage: React.FC = () => (
 			<div className="bg-primary py-[8rem] mt-[12rem]">
 				<Container>
 					<div className="flex justify-between xs:flex-col">
-						<div className="flex flex-col w-[45%] text-white space-y-8 xs:w-full">
+						<div className="flex flex-col w-[45%] text-[#fbfbfb] space-y-8 xs:w-full">
 							<h5 className="font-gotham font-bold text-[4rem]">
 								Telegram-канал
 							</h5>
@@ -227,7 +227,7 @@ export const HomePage: React.FC = () => (
 				<Container>
 					<div className="flex flex-col space-y-8">
 						<h3 className="text-[#434343] font-gotham font-bold text-[3.8rem]">
-							<span className="relative text-white before:bg-gradient before:absolute before:w-full before:h-full before:rounded-xl before:-rotate-[1deg] before:left-0 before:top-0 before:-z-10">
+							<span className="relative text-[#fbfbfb] before:bg-gradient before:absolute before:w-full before:h-full before:rounded-xl before:-rotate-[1deg] before:left-0 before:top-0 before:-z-10">
 								Почему стоит
 							</span>{" "}
 							начать с нами?
@@ -285,7 +285,7 @@ export const HomePage: React.FC = () => (
 					<div className="flex flex-col space-y-32">
 						<h3 className="text-[#434343] font-gotham font-bold text-[3.8rem]">
 							Ответы на{" "}
-							<span className="relative text-white before:bg-gradient before:absolute before:w-full before:h-full before:rounded-xl before:rotate-[1deg] before:left-0 before:top-0 before:-z-10">
+							<span className="relative text-[#fbfbfb] before:bg-gradient before:absolute before:w-full before:h-full before:rounded-xl before:rotate-[1deg] before:left-0 before:top-0 before:-z-10">
 								ваши вопросы
 							</span>
 						</h3>
@@ -331,7 +331,7 @@ export const HomePage: React.FC = () => (
 			<div className="bg-primary py-[8rem] mt-[8rem]">
 				<Container>
 					<div className="flex flex-col space-y-24">
-						<div className="flex flex-col space-y-8 text-white">
+						<div className="flex flex-col space-y-8 text-[#fbfbfb]">
 							<h3 className="font-gotham font-bold text-[3.8rem] leading-[4.6rem]">
 								Получите индивидуальную консультацию
 							</h3>
@@ -359,7 +359,7 @@ export const HomePage: React.FC = () => (
 								</GradientButton>
 							</form>
 
-							<span className="font-gotham text-[1.4rem] text-white">
+							<span className="font-gotham text-[1.4rem] text-[#fbfbfb]">
 								Отправляя заявку, вы даете согласие на обработку
 								персональных данных.
 							</span>
@@ -371,7 +371,7 @@ export const HomePage: React.FC = () => (
 
 		<footer className="bg-[#151515] pt-[6rem] pb-[4rem]">
 			<Container>
-				<div className="flex flex-col space-y-[10rem] text-white">
+				<div className="flex flex-col space-y-[10rem] text-[#fbfbfb]">
 					<div className="flex xs:hidden">
 						<div className="w-1/4 flex flex-col space-y-16">
 							<h6 className="font-gotham font-bold text-[2rem]">
@@ -462,28 +462,19 @@ export const HomePage: React.FC = () => (
 							className="w-full flex flex-col space-y-24"
 						>
 							<AccordionItem value="item-1">
-								<AccordionTrigger
-									className="text-white"
-									iconClassName="fill-white"
-								>
+								<AccordionTrigger className="text-[#fbfbfb] [&>svg]:fill-[#fbfbfb]">
 									О компании
 								</AccordionTrigger>
 							</AccordionItem>
 
 							<AccordionItem value="item-2">
-								<AccordionTrigger
-									className="text-white"
-									iconClassName="fill-white"
-								>
+								<AccordionTrigger className="text-[#fbfbfb] [&>svg]:fill-[#fbfbfb]">
 									Наши проекты
 								</AccordionTrigger>
 							</AccordionItem>
 
 							<AccordionItem value="item-3">
-								<AccordionTrigger
-									className="text-white"
-									iconClassName="fill-white"
-								>
+								<AccordionTrigger className="text-[#fbfbfb] [&>svg]:fill-[#fbfbfb]">
 									Контакты
 								</AccordionTrigger>
 							</AccordionItem>
@@ -513,7 +504,7 @@ export const HomePage: React.FC = () => (
 					</div>
 
 					<div className="flex justify-center">
-						<span className="font-gotham font-bold text-[1.8rem] text-white">
+						<span className="font-gotham font-bold text-[1.8rem] text-[#fbfbfb]">
 							© 2024 Freelance School. All Rights Reserved.
 						</span>
 					</div>

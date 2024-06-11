@@ -12,6 +12,7 @@ import Heart from "./heart.svg?react";
 import Phone from "./phone.svg?react";
 import Mail from "./mail.svg?react";
 import Location from "./location.svg?react";
+import Dots from "./dots.svg?react";
 
 export const Icon = {
 	Chevron,
@@ -28,4 +29,5 @@ export const Icon = {
 	Phone,
 	Mail,
 	Location,
+	Dots,
 };

@@ -2,7 +2,7 @@ import {forwardRef} from "react";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import {cx} from "class-variance-authority";
 
-import {Icon} from "../icons";
+import {Icon} from "@shared/ui";
 
 export const AccordionRoot = AccordionPrimitive.Root;
 
@@ -16,31 +16,24 @@ export const AccordionItem = forwardRef<
 AccordionItem.displayName = "AccordionItem";
 
 interface AccordionTriggerProps
-	extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> {
-	iconClassName?: string;
-}
+	extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> {}
 
 export const AccordionTrigger = forwardRef<
 	React.ElementRef<typeof AccordionPrimitive.Trigger>,
 	AccordionTriggerProps
->(({className, children, iconClassName, ...props}, ref) => (
+>(({className, children, ...props}, ref) => (
 	<AccordionPrimitive.Header className="flex">
 		<AccordionPrimitive.Trigger
 			ref={ref}
 			className={cx(
-				"flex flex-1 items-center text-left justify-between py-4 text-[3rem] text-[#434343] font-bold font-gilroy transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
+				"flex flex-1 items-center text-left justify-between py-6 text-30 text-[#434343] font-bold font-gilroy transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
 				className,
 			)}
 			{...props}
 		>
 			{children}
 
-			<Icon.Chevron.Down
-				className={cx(
-					"w-[3rem] h-auto fill-primary shrink-0 text-muted-foreground transition-transform duration-200",
-					iconClassName,
-				)}
-			/>
+			<Icon.Chevron.Down className="w-[3rem] h-auto fill-primary shrink-0 transition-transform duration-200" />
 		</AccordionPrimitive.Trigger>
 	</AccordionPrimitive.Header>
 ));
@@ -53,10 +46,10 @@ export const AccordionContent = forwardRef<
 >(({className, children, ...props}, ref) => (
 	<AccordionPrimitive.Content
 		ref={ref}
-		className="overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+		className="overflow-hidden text-14 data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
 		{...props}
 	>
-		<div className={cx("pb-4 pt-0", className)}>{children}</div>
+		<div className={cx("pb-6 pt-0", className)}>{children}</div>
 	</AccordionPrimitive.Content>
 ));
 

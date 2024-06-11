@@ -7,6 +7,6 @@ export const Logo: React.FC<PropsWithClassName> = ({className}) => (
 	<img
 		src={logo}
 		alt="Логотип фриланс школы"
-		className={cx("w-[7.5rem] h-[7.5rem] rounded-full", className)}
+		className={cx("w-76 h-76 rounded-full", className)}
 	/>
 );

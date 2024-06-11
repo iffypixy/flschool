@@ -18,8 +18,6 @@ export default {
 					"linear-gradient(100.77deg, #0DB8D0 22.93%, #A9A2F2 57.51%)",
 			},
 			colors: {
-				white: "#FBFBFB",
-				black: "#151515",
 				primary: {
 					DEFAULT: "#7136E6",
 				},

@@ -5,8 +5,9 @@ const styles = cva(
 	{
 		variants: {
 			color: {
-				primary: "bg-primary text-white",
-				secondary: "bg-transparent text-black border border-primary",
+				primary: "bg-primary text-[#fbfbfb]",
+				secondary:
+					"bg-transparent text-[#151515] border border-primary",
 			},
 		},
 	},
@@ -29,7 +30,7 @@ export const GradientButton: React.FC<React.ComponentProps<"button">> = ({
 }) => (
 	<button
 		className={cx(
-			"rounded-12 bg-white text-center py-10 px-24 font-gotham font-medium text-[1.8rem]",
+			"rounded-12 bg-[#fbfbfb] text-center py-10 px-24 font-gotham font-medium text-[1.8rem]",
 			className,
 		)}
 		{...props}

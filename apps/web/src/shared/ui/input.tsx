@@ -8,7 +8,7 @@ export const Input = forwardRef<
 	<input
 		ref={ref}
 		className={cx(
-			"py-14 px-24 rounded-12 bg-transparent placeholder:text-white/60 font-manrope text-white border border-white font-medium text-[1.8rem] outline-none",
+			"py-14 px-24 rounded-12 bg-transparent placeholder:text-[rgba(255,255,255,0.6)] font-manrope text-[#fbfbfb] border border-[#fbfbfb] font-medium text-18 outline-none",
 			className,
 		)}
 		{...props}
