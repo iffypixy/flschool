@@ -1,6 +1,6 @@
 import {
 	AccordionItem,
-	AccordionRoot,
+	Accordion,
 	AccordionTrigger,
 	Button,
 	Container,
@@ -291,7 +291,7 @@ export const HomePage: React.FC = () => (
 						</h3>
 
 						<div>
-							<AccordionRoot
+							<Accordion
 								type="multiple"
 								className="flex flex-col space-y-26"
 							>
@@ -322,7 +322,7 @@ export const HomePage: React.FC = () => (
 										окончании курсов?
 									</AccordionTrigger>
 								</AccordionItem>
-							</AccordionRoot>
+							</Accordion>
 						</div>
 					</div>
 				</Container>
@@ -457,7 +457,7 @@ export const HomePage: React.FC = () => (
 					</div>
 
 					<div className="hidden xs:flex flex-col !mt-0 space-y-34">
-						<AccordionRoot
+						<Accordion
 							type="single"
 							className="w-full flex flex-col space-y-24"
 						>
@@ -478,7 +478,7 @@ export const HomePage: React.FC = () => (
 									Контакты
 								</AccordionTrigger>
 							</AccordionItem>
-						</AccordionRoot>
+						</Accordion>
 
 						<ul className="flex flex-wrap -m-8">
 							<li className="m-12">

@@ -4,7 +4,7 @@ import {cx} from "class-variance-authority";
 
 import {Icon} from "@shared/ui";
 
-export const AccordionRoot = AccordionPrimitive.Root;
+export const Accordion = AccordionPrimitive.Root;
 
 export const AccordionItem = forwardRef<
 	React.ElementRef<typeof AccordionPrimitive.Item>,
