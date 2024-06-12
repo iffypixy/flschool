@@ -1,4 +1,5 @@
 import {NestFactory} from "@nestjs/core";
+import {ValidationPipe} from "@nestjs/common";
 
 import {AppModule} from "./app.module";
 
@@ -8,6 +9,8 @@ async function bootstrap() {
 			origin: process.env.CLIENT_ORIGIN.split(", "),
 		},
 	});
+
+	app.useGlobalPipes(new ValidationPipe());
 
 	await app.listen(+process.env.PORT);
 }
