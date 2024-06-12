@@ -1,0 +1,242 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  EXPERT
+  ADMIN
+}
+
+model User {
+	id String @id @default(uuid())
+	email String @unique
+	firstName String
+	lastName String
+	password String?
+	role UserRole @default(USER)
+
+	expert Expert?
+	purchases Purchase[]
+	homeworkAnswers HomeworkAnswer[]
+	submittedTests UserTest[]
+	submittedTestAnswers UserTestAnswer[]
+	courseReviews CourseReview[]
+	courseLessonReviews CourseLessonReview[]
+}
+
+model Review {
+	id String @id @default(uuid())
+	rating Int
+
+	homeworkAnswerFeedbacks HomeworkAnswerFeedback[]
+	courseReviews CourseReview[]
+	courseLessonReviews CourseLessonReview[]
+}
+
+enum PurchaseType {
+	FL_TEENS_COURSES
+	EDUCATION_COURSES
+	LANGUAGE_COURSE
+}
+
+model Purchase {
+	id String @id @default(uuid())
+	user User @relation(fields: [userId], references: [id])
+	course Course? @relation(fields: [courseId], references: [id])
+	type PurchaseType
+
+	userId String
+	courseId String?
+}
+
+model Expert {
+	id String @id @default(uuid())
+	user User @relation(fields: [userId], references: [id])
+	about String @default("")
+
+	userId String @unique
+
+	courses Course[]
+}
+
+enum CourseType {
+	FL_TEENS
+	EDUCATION
+	LANGUAGE
+}
+
+model Course {
+	id String @id @default(uuid())
+	author Expert @relation(fields: [authorId], references: [id])
+	name String
+	hook String
+	description String
+	language String
+	completionPeriod Int
+	audience String[]
+	type CourseType
+	preview String
+	price Int?
+
+	authorId String
+
+	purchases Purchase[]
+	lessons CourseLesson[]
+	reviews CourseReview[]
+}
+
+model CourseLesson {
+	id String @id @default(uuid())
+	course Course @relation(fields: [courseId], references: [id])
+	name String
+	topics String[]
+	video String
+	order Int
+
+	courseId String
+
+	homework LessonHomework?
+	reviews CourseLessonReview[]
+}
+
+model LessonHomework {
+	id String @id @default(uuid())
+	lesson CourseLesson @relation(fields: [lessonId], references: [id])
+	question HomeworkQuestion @relation(fields: [questionId], references: [id])
+
+	lessonId String @unique
+	questionId String @unique
+}
+
+enum HomeworkQuestionType {
+	TEST
+	TEXT
+}
+
+model HomeworkQuestion {
+	id String @id @default(uuid())
+	type HomeworkQuestionType
+	text String?
+	test Test? @relation(fields: [testId], references: [id])
+
+	testId String? @unique
+
+	homework LessonHomework?
+	answers HomeworkAnswer[]
+}
+
+enum HomeworkAnswerStatus {
+	PENDING
+	CHECKED
+}
+
+model HomeworkAnswer {
+	id String @id @default(uuid())
+	question HomeworkQuestion @relation(fields: [questionId], references: [id])
+	user User @relation(fields: [userId], references: [id])
+	file String?
+	text String?
+	submittedTest UserTest? @relation(fields: [submittedTestId], references: [id])
+	status HomeworkAnswerStatus
+
+	questionId String
+	userId String
+	submittedTestId String?
+
+	feedback HomeworkAnswerFeedback?
+}
+
+model HomeworkAnswerFeedback {
+	id String @id @default(uuid())
+	answer HomeworkAnswer @relation(fields: [answerId], references: [id])
+	review Review @relation(fields: [reviewId], references: [id])
+	comment String?
+
+	answerId String @unique
+	reviewId String
+}
+
+model Test {
+	id String @id @default(uuid())
+
+	homeworkQuestion HomeworkQuestion?
+	questions TestQuestion[]
+	submittedTests UserTest[]
+	submittedAnswers UserTestAnswer[]
+}
+
+model TestQuestion {
+	id String @id @default(uuid())
+	test Test @relation(fields: [testId], references: [id])
+	text String
+	order Int
+
+	testId String
+
+	answers TestAnswer[]
+	submittedAnswers UserTestAnswer[]
+}
+
+model TestAnswer {
+	id String @id @default(uuid())
+	question TestQuestion @relation(fields: [questionId], references: [id])
+	text String
+	isCorrect Boolean
+
+	questionId String
+
+	submittedAnswers UserTestAnswer[]
+}
+
+model UserTestAnswer {
+	id String @id @default(uuid())
+	test Test @relation(fields: [testId], references: [id])
+	question TestQuestion @relation(fields: [questionId], references: [id])
+	answer TestAnswer @relation(fields: [answerId], references: [id])
+	user User @relation(fields: [userId], references: [id])
+
+	testId String
+	questionId String
+	answerId String
+	userId String
+}
+
+model UserTest {
+	id String @id @default(uuid())
+	test Test @relation(fields: [testId], references: [id])
+	user User @relation(fields: [userId], references: [id])
+
+	testId String
+	userId String
+
+	homeworkAnswers HomeworkAnswer[]
+}
+
+model CourseReview {
+	id String @id @default(uuid())
+	user User @relation(fields: [userId], references: [id])
+	course Course @relation(fields: [courseId], references: [id])
+	review Review @relation(fields: [reviewId], references: [id])
+	feedback String
+
+	userId String
+	courseId String
+	reviewId String
+}
+
+model CourseLessonReview {
+	id String @id @default(uuid())
+	user User @relation(fields: [userId], references: [id])
+	lesson CourseLesson @relation(fields: [lessonId], references: [id])
+	review Review @relation(fields: [reviewId], references: [id])
+
+	userId String
+	lessonId String
+	reviewId String
+}
