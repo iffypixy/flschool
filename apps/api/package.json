@@ -14,6 +14,7 @@
 		"@nestjs/config": "^3.2.2",
 		"@nestjs/core": "^10.0.0",
 		"@nestjs/platform-express": "^10.0.0",
+		"@prisma/client": "^5.15.0",
 		"reflect-metadata": "^0.1.13",
 		"rxjs": "^7.8.1"
 	},
@@ -25,6 +26,7 @@
 		"@typescript-eslint/eslint-plugin": "^6.0.0",
 		"@typescript-eslint/parser": "^6.0.0",
 		"eslint": "^8.42.0",
+		"prisma": "^5.15.0",
 		"source-map-support": "^0.5.21",
 		"ts-loader": "^9.4.3",
 		"ts-node": "^10.9.1",
