@@ -24,6 +24,7 @@
 		"ejs": "^3.1.10",
 		"express-session": "^1.18.0",
 		"ioredis": "^5.4.1",
+		"nanoid": "^5.0.7",
 		"nodemailer": "^6.9.13",
 		"puppeteer": "^22.11.0",
 		"reflect-metadata": "^0.1.13",
