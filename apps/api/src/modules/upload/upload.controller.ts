@@ -16,7 +16,7 @@ import {s3} from "@lib/s3";
 import * as dtos from "./dtos";
 
 @UseGuards(IsAuthenticated)
-@Controller("upload")
+@Controller("uploads")
 export class UploadController {
 	constructor(private readonly config: ConfigService) {}
 
