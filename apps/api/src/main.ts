@@ -2,9 +2,9 @@ import {NestFactory} from "@nestjs/core";
 import {ValidationPipe} from "@nestjs/common";
 
 import {session} from "@lib/session";
-import {redis} from "@lib/redis";
 
 import {AppModule} from "./app.module";
+import {s3} from "./lib/s3";
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule, {
@@ -15,9 +15,9 @@ async function bootstrap() {
 
 	app.useGlobalPipes(new ValidationPipe());
 
-	redis.setUp();
-
 	app.use(session());
+
+	console.log(s3.endpoint);
 
 	await app.listen(+process.env.PORT);
 }

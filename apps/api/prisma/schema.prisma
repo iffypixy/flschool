@@ -28,6 +28,21 @@ model User {
 	submittedTestAnswers UserTestAnswer[]
 	courseReviews CourseReview[]
 	courseLessonReviews CourseLessonReview[]
+	students Student[]
+	providers UserAuthProvider[]
+}
+
+model UserAuthProvider {
+  	id String @id @default(uuid())
+  	name AuthProviderName
+  	uid String
+  	user User @relation(fields: [userId], references: [id])
+
+	userId String @unique
+}
+
+enum AuthProviderName {
+  GOOGLE
 }
 
 model Review {
@@ -89,6 +104,7 @@ model Course {
 	purchases Purchase[]
 	lessons CourseLesson[]
 	reviews CourseReview[]
+	students Student[]
 }
 
 model CourseLesson {
@@ -112,6 +128,8 @@ model LessonHomework {
 
 	lessonId String @unique
 	questionId String @unique
+
+	answers HomeworkAnswer[]
 }
 
 enum HomeworkQuestionType {
@@ -128,7 +146,6 @@ model HomeworkQuestion {
 	testId String? @unique
 
 	homework LessonHomework?
-	answers HomeworkAnswer[]
 }
 
 enum HomeworkAnswerStatus {
@@ -138,14 +155,14 @@ enum HomeworkAnswerStatus {
 
 model HomeworkAnswer {
 	id String @id @default(uuid())
-	question HomeworkQuestion @relation(fields: [questionId], references: [id])
+	homework LessonHomework @relation(fields: [homeworkId], references: [id])
 	user User @relation(fields: [userId], references: [id])
 	file String?
 	text String?
 	submittedTest UserTest? @relation(fields: [submittedTestId], references: [id])
 	status HomeworkAnswerStatus
 
-	questionId String
+	homeworkId String
 	userId String
 	submittedTestId String?
 
@@ -167,6 +184,7 @@ model Test {
 
 	homeworkQuestion HomeworkQuestion?
 	questions TestQuestion[]
+	answers TestAnswer[]
 	submittedTests UserTest[]
 	submittedAnswers UserTestAnswer[]
 }
@@ -185,17 +203,18 @@ model TestQuestion {
 
 model TestAnswer {
 	id String @id @default(uuid())
+	test Test @relation(fields: [testId], references: [id])
 	question TestQuestion @relation(fields: [questionId], references: [id])
 	text String
 	isCorrect Boolean
 
 	questionId String
+	testId String
 
 	submittedAnswers UserTestAnswer[]
 }
 
 model UserTestAnswer {
-	id String @id @default(uuid())
 	test Test @relation(fields: [testId], references: [id])
 	question TestQuestion @relation(fields: [questionId], references: [id])
 	answer TestAnswer @relation(fields: [answerId], references: [id])
@@ -205,6 +224,8 @@ model UserTestAnswer {
 	questionId String
 	answerId String
 	userId String
+
+	@@id([userId, testId, questionId])
 }
 
 model UserTest {
@@ -239,4 +260,55 @@ model CourseLessonReview {
 	userId String
 	lessonId String
 	reviewId String
+}
+
+model Student {
+	id String @id @default(uuid())
+	user User @relation(fields: [userId], references: [id])
+	course Course @relation(fields: [courseId], references: [id])
+	progress Int @default(0)
+
+	userId String
+	courseId String
+}
+
+enum RequiredExperience {
+	NONE
+	HALF_YEAR
+	ONE_YEAR
+	TWO_YEARS
+	THREE_YEARS
+	FOUR_YEARS
+}
+
+enum EmploymentType {
+	PART_TIME
+	FULL_TIME
+	INTERNSHIP
+}
+
+enum ModalityType {
+	ON_SITE
+	REMOTE
+	HYBRID
+}
+
+model Vacancy {
+	id String @id @default(uuid())
+	company String
+	position String
+	avatar String
+	requiredExperience RequiredExperience
+	employmentType EmploymentType[]
+	modalityType ModalityType[]
+	salary Int
+	link String
+}
+
+model ConsultationRequest {
+	id String @id @default(uuid())
+	phone String
+	name String
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
 }

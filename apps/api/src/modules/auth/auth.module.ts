@@ -5,11 +5,14 @@ import {
 	RequestMethod,
 } from "@nestjs/common";
 
-import {AuthController} from "./auth.controller";
+import {OAuth2Module} from "@lib/oauth2";
+
+import {AuthLocalController, AuthOAuth2GoogleController} from "./controllers";
 import {LoadUser} from "./load-user.middleware";
 
 @Module({
-	controllers: [AuthController],
+	imports: [OAuth2Module],
+	controllers: [AuthLocalController, AuthOAuth2GoogleController],
 })
 export class AuthModule implements NestModule {
 	configure(consumer: MiddlewareConsumer) {

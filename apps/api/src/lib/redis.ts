@@ -1,16 +1,11 @@
 import {Redis} from "ioredis";
+import dotenv from "dotenv";
 
-import {Nullable} from "@lib/types";
+dotenv.config();
 
-export const redis: {
-	client: Nullable<Redis>;
-	setUp(): void;
-} = {
-	client: null,
-	setUp() {
-		this.client = new Redis({
-			host: process.env.REDIS_HOST,
-			port: +process.env.REDIS_PORT,
-		});
-	},
+export const redis = {
+	client: new Redis({
+		host: process.env.REDIS_HOST,
+		port: +process.env.REDIS_PORT,
+	}),
 };

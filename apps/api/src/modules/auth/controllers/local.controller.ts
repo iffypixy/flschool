@@ -13,11 +13,11 @@ import bcrypt from "bcryptjs";
 import {PrismaService} from "@lib/prisma";
 import {sanitized} from "@lib/sanitized";
 
-import {IsAuthenticated} from "./is-authenticated.guard";
-import * as dtos from "./dtos";
+import {IsAuthenticated} from "../guards/is-authenticated.guard";
+import * as dtos from "../dtos";
 
 @Controller("auth")
-export class AuthController {
+export class AuthLocalController {
 	constructor(private readonly prisma: PrismaService) {}
 
 	@Post("register")
