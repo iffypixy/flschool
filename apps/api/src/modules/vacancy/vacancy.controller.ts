@@ -1,48 +1,22 @@
-import {Controller, Get, Query} from "@nestjs/common";
+import {Controller, Get} from "@nestjs/common";
 
 import {PrismaService} from "@lib/prisma";
-import {isUndefined} from "@lib/auxiliary";
-
-import * as dtos from "./dtos";
+import {sanitized} from "@lib/sanitized";
 
 @Controller("vacancies")
 export class VacancyController {
 	constructor(private readonly prisma: PrismaService) {}
 
 	@Get("/")
-	async getVacancies(@Query() dto: dtos.GetVacanciesDto) {
-		const valueOrUndefined = (value: any) =>
-			isUndefined(value) ? undefined : value;
-
+	async getVacancies() {
 		const vacancies = await this.prisma.vacancy.findMany({
-			where: {
-				position: valueOrUndefined({
-					contains: dto.positionQuery,
-					mode: "insensitive",
-				}),
-				employmentType: valueOrUndefined({
-					hasSome: dto.employmentType,
-				}),
-				modalityType: valueOrUndefined({
-					hasSome: dto.modalityType,
-				}),
-				requiredExperience: valueOrUndefined({
-					in: dto.requiredExperience,
-				}),
-				salary: valueOrUndefined({
-					gte: dto.salaryFrom || 0,
-					lte: dto.salaryTo || Infinity,
-				}),
+			orderBy: {
+				createdAt: "desc",
 			},
-			skip: dto.offset || 0,
-			take: dto.limit || 20,
 		});
 
 		return {
-			vacancies: {
-				list: vacancies,
-				total: vacancies.length,
-			},
+			vacancies: vacancies.map(sanitized.vacancy),
 		};
 	}
 }

@@ -1,11 +1,17 @@
-import {User} from "@prisma/client";
+import {Prisma} from "@prisma/client";
 import "express-session";
 
 import {Maybe} from "@lib/types";
 
 declare module "express-session" {
 	interface SessionData {
-		user: Maybe<User>;
+		user: Maybe<
+			Prisma.UserGetPayload<{
+				include: {
+					avatarFile: true;
+				};
+			}>
+		>;
 		userId: Maybe<string>;
 	}
 

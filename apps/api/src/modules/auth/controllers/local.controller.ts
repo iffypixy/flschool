@@ -12,28 +12,31 @@ import bcrypt from "bcryptjs";
 
 import {PrismaService} from "@lib/prisma";
 import {sanitized} from "@lib/sanitized";
+import {PromocodeService} from "@modules/promocode";
 
 import {IsAuthenticated} from "../guards/is-authenticated.guard";
 import * as dtos from "../dtos";
 
-@Controller("auth")
+@Controller("auth/local")
 export class AuthLocalController {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly promocodeService: PromocodeService,
+	) {}
 
 	@Post("register")
 	async signUp(
 		@Body() dto: dtos.SignUpDto,
 		@Session() session: SessionWithData,
 	) {
-		const exists =
-			(await this.prisma.user.count({
-				where: {
-					email: dto.email,
-				},
-			})) > 0;
+		const existing = await this.prisma.user.findFirst({
+			where: {
+				email: dto.email,
+			},
+		});
 
-		if (exists)
-			throw new BadRequestException("Provided email is already taken");
+		if (existing)
+			throw new BadRequestException("Email has been already taken");
 
 		const salt = await bcrypt.genSalt(10);
 		const hash = await bcrypt.hash(dto.password, salt);
@@ -45,10 +48,32 @@ export class AuthLocalController {
 				lastName: dto.lastName,
 				password: hash,
 			},
+			include: {
+				avatarFile: true,
+			},
 		});
 
 		session.user = user;
 		session.userId = user.id;
+
+		await this.promocodeService.createPromocode(user.id);
+
+		if (dto.promocode) {
+			const promocode = await this.prisma.promocode.findFirst({
+				where: {
+					code: dto.promocode,
+				},
+			});
+
+			if (promocode) {
+				await this.prisma.promocodeUsage.create({
+					data: {
+						promocodeId: promocode.id,
+						userId: user.id,
+					},
+				});
+			}
+		}
 
 		return {
 			credentials: sanitized.credentials(user),
@@ -57,7 +82,7 @@ export class AuthLocalController {
 
 	@Post("login")
 	async signIn(
-		@Body() dto: dtos.SignUpDto,
+		@Body() dto: dtos.SignInDto,
 		@Session() session: SessionWithData,
 	) {
 		const exception = new BadRequestException("Invalid credentials");
@@ -65,6 +90,9 @@ export class AuthLocalController {
 		const user = await this.prisma.user.findFirst({
 			where: {
 				email: dto.email,
+			},
+			include: {
+				avatarFile: true,
 			},
 		});
 
@@ -91,5 +119,12 @@ export class AuthLocalController {
 		return {
 			credentials: sanitized.credentials(session.user),
 		};
+	}
+
+	@UseGuards(IsAuthenticated)
+	@Post("logout")
+	logout(@Session() session: SessionWithData) {
+		session.user = null;
+		session.userId = null;
 	}
 }

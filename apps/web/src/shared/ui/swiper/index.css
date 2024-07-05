@@ -1,3 +1,36 @@
 .slick-list {
 	margin: 1rem !important;
 }
+
+.slick-dots {
+	bottom: -2.5rem !important;
+}
+
+.slick-dots li {
+	width: auto !important;
+	height: auto !important;
+	margin: 0 1px;
+}
+
+.slick-dots li button {
+	width: 4rem;
+	margin: 0 1px !important;
+	padding: 0 !important;
+}
+
+.slick-dots li button::before {
+	width: 2rem;
+	height: 2rem;
+	color: #d1ebe8 !important;
+	background-color: #d1ebe8;
+	border-radius: 50%;
+	opacity: 1 !important;
+	left: 50% !important;
+	transform: translateX(-50%);
+	transition: linear 0.2s;
+}
+
+.slick-dots .slick-active button::before {
+	width: 4rem;
+	border-radius: 1rem;
+}

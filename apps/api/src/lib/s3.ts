@@ -18,7 +18,7 @@ export const extractObject = (link: string) => {
 	const pathname = url.pathname;
 
 	const objectKey = () => {
-		const objectKey = pathname.substring(pathname.lastIndexOf("/") + 1);
+		const objectKey = pathname.substring(pathname.indexOf("/") + 1);
 
 		return objectKey;
 	};

@@ -1,10 +1,11 @@
 import {forwardRef} from "react";
+import {Link} from "wouter";
 import {Slot} from "@radix-ui/react-slot";
 import {cx} from "class-variance-authority";
 
 import {Icon} from "@shared/ui";
 
-const Breadcrumb = forwardRef<
+export const Breadcrumb = forwardRef<
 	HTMLElement,
 	React.ComponentPropsWithoutRef<"nav"> & {
 		separator?: React.ReactNode;
@@ -13,14 +14,14 @@ const Breadcrumb = forwardRef<
 
 Breadcrumb.displayName = "Breadcrumb";
 
-const BreadcrumbList = forwardRef<
+export const BreadcrumbList = forwardRef<
 	HTMLOListElement,
 	React.ComponentPropsWithoutRef<"ol">
 >(({className, ...props}, ref) => (
 	<ol
 		ref={ref}
 		className={cx(
-			"flex flex-wrap items-center gap-12 break-words text-16 text-[#909090] sm:gap-8",
+			"flex flex-wrap items-center gap-10 break-words xs:text-24 text-18 text-[#909090] sm:gap-8",
 			className,
 		)}
 		{...props}
@@ -29,7 +30,7 @@ const BreadcrumbList = forwardRef<
 
 BreadcrumbList.displayName = "BreadcrumbList";
 
-const BreadcrumbItem = forwardRef<
+export const BreadcrumbItem = forwardRef<
 	HTMLLIElement,
 	React.ComponentPropsWithoutRef<"li">
 >(({className, ...props}, ref) => (
@@ -42,13 +43,14 @@ const BreadcrumbItem = forwardRef<
 
 BreadcrumbItem.displayName = "BreadcrumbItem";
 
-const BreadcrumbLink = forwardRef<
+export const BreadcrumbLink = forwardRef<
 	HTMLAnchorElement,
-	React.ComponentPropsWithoutRef<"a"> & {
+	React.ComponentPropsWithoutRef<typeof Link> & {
+		className?: string;
 		asChild?: boolean;
 	}
 >(({asChild, className, ...props}, ref) => {
-	const Comp = asChild ? Slot : "a";
+	const Comp = asChild ? Slot : Link;
 
 	return (
 		<Comp
@@ -61,7 +63,7 @@ const BreadcrumbLink = forwardRef<
 
 BreadcrumbLink.displayName = "BreadcrumbLink";
 
-const BreadcrumbPage = forwardRef<
+export const BreadcrumbPage = forwardRef<
 	HTMLSpanElement,
 	React.ComponentPropsWithoutRef<"span">
 >(({className, ...props}, ref) => (
@@ -77,18 +79,15 @@ const BreadcrumbPage = forwardRef<
 
 BreadcrumbPage.displayName = "BreadcrumbPage";
 
-const BreadcrumbSeparator = ({
-	children,
-	...props
-}: React.ComponentProps<"li">) => (
+export const BreadcrumbSeparator = (props: React.ComponentProps<"li">) => (
 	<li role="presentation" aria-hidden="true" {...props}>
-		{children ?? <Icon.Chevron.Right className="fill-[#909090] size-12" />}
+		<span className="text-[#909090]">/</span>
 	</li>
 );
 
 BreadcrumbSeparator.displayName = "BreadcrumbSeparator";
 
-const BreadcrumbEllipsis = ({
+export const BreadcrumbEllipsis = ({
 	className,
 	...props
 }: React.ComponentProps<"span">) => (
@@ -98,19 +97,9 @@ const BreadcrumbEllipsis = ({
 		className={cx("flex size-16 items-center justify-center", className)}
 		{...props}
 	>
-		<Icon.Dots className="size-8" />
+		<Icon.Dots.Horizontal className="size-8" />
 		<span className="sr-only">More</span>
 	</span>
 );
 
 BreadcrumbEllipsis.displayName = "BreadcrumbElipssis";
-
-export {
-	Breadcrumb,
-	BreadcrumbList,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-	BreadcrumbEllipsis,
-};

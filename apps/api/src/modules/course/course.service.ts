@@ -1,49 +1,58 @@
-import {Course} from "@prisma/client";
+import {Course, Prisma} from "@prisma/client";
+import {Injectable} from "@nestjs/common";
 
-import {PaginationDto} from "@lib/dtos";
 import {PrismaService} from "@lib/prisma";
+import {sanitized} from "@lib/sanitized";
 
+@Injectable()
 export class CourseService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async loadCourses(type: Course["type"], query: PaginationDto) {
-		const minReviews = 0;
-		const avgRating = 4;
-
-		const total = await this.prisma.course.count({
+	async loadCourses(type: Course["type"]) {
+		const courses = await this.prisma.course.findMany({
 			where: {
 				type,
 			},
+			include: {
+				previewFile: true,
+				reviews: {
+					include: {
+						review: true,
+					},
+				},
+			},
 		});
 
-		const courses = await this.prisma.$queryRaw`
-			SELECT
-				c.*,
-				AVG(r.rating) AS rating,
-				COUNT(cr.id) AS reviews,
-				(
-					(COUNT(cr.id) * AVG(r.rating)) + (${minReviews} * ${avgRating}))
-					/
-					(COUNT(cr.id) + ${minReviews}
-				) AS score
-			FROM
-				"Course" c
-			JOIN
-				"CourseReview" cr ON c."id" = cr."courseId"
-			JOIN
-				"Review" r ON cr."reviewId" = r."id"
-			WHERE
-				c."type" = '${type}'
-			GROUP BY
-				c."id"
-			ORDER BY
-				score DESC
-			LIMIT
-				${query.limit}
-			OFFSET
-				${query.offset};
-		`;
+		const list: Array<{
+			course: Prisma.CourseGetPayload<{
+				include: {
+					previewFile: true;
+				};
+			}>;
+			reviews: number;
+			rating: number;
+		}> = [];
 
-		return {courses, total};
+		courses.forEach((c) => {
+			list.push({
+				course: c,
+				reviews: c.reviews.length,
+				rating:
+					c.reviews
+						.map((cr) => cr.review.rating)
+						.reduce((prev, rating) => prev + rating, 0) /
+					(c.reviews.length || 1),
+			});
+		});
+
+		list.sort((a, b) => b.rating - a.rating);
+
+		return {
+			courses: list.map(({course, reviews, rating}) => ({
+				...sanitized.course(course),
+				reviews,
+				rating,
+			})),
+		};
 	}
 }

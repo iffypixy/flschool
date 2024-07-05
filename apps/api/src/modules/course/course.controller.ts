@@ -6,24 +6,22 @@ import {
 	NotFoundException,
 	Param,
 	Post,
-	Put,
-	Query,
 	Session,
 	UseGuards,
 } from "@nestjs/common";
-import {Course, Expert} from "@prisma/client";
+import {Course} from "@prisma/client";
 import {SessionWithData} from "express-session";
 
+import {sanitized} from "@lib/sanitized";
 import {PrismaService} from "@lib/prisma";
-import {PaginationDto} from "@lib/dtos";
-import {isUndefined} from "@lib/auxiliary";
-import {IsAuthenticated, IsExpert} from "@modules/auth";
+import {extractObject} from "@lib/s3";
+import {IsAuthenticated} from "@modules/auth";
 import {UploadService} from "@modules/upload";
 
 import {generateCertificatePdf} from "./lib/certificate";
 import {CourseService} from "./course.service";
+import {PACK_PRICE} from "./course.constants";
 import * as dtos from "./dtos";
-import {extractObject} from "@/lib/s3";
 
 @Controller("courses")
 export class CourseController {
@@ -34,178 +32,227 @@ export class CourseController {
 	) {}
 
 	@Get("fl-teens")
-	async getFlTeensCourses(@Query() query: PaginationDto) {
-		const {courses, total} = await this.service.loadCourses(
-			"FL_TEENS",
-			query,
-		);
+	async getFlTeensCourses() {
+		const {courses} = await this.service.loadCourses("FL_TEENS");
 
 		return {
 			courses,
-			total,
 		};
 	}
 
 	@Get("education")
-	async getEducationCourses(@Query() query: PaginationDto) {
-		const {courses, total} = await this.service.loadCourses(
-			"EDUCATION",
-			query,
-		);
+	async getEducationCourses() {
+		const {courses} = await this.service.loadCourses("EDUCATION");
 
 		return {
 			courses,
-			total,
 		};
 	}
 
 	@Get("language")
-	async getLanguageCourses(@Query() query: PaginationDto) {
-		const {courses, total} = await this.service.loadCourses(
-			"LANGUAGE",
-			query,
-		);
+	async getLanguageCourses() {
+		const {courses} = await this.service.loadCourses("LANGUAGE");
 
 		return {
 			courses,
-			total,
 		};
 	}
 
 	@Get("popular")
-	async getPopularCourse(@Session() session: SessionWithData) {
-		const minReviews = 0;
-		const avgRating = 4;
-
-		const [course] = (await this.prisma.$queryRaw`
+	async getPopularCourses() {
+		const courses = (await this.prisma.$queryRaw`
 			SELECT
 				c.*,
-				AVG(r.rating) AS rating,
-				COUNT(cr.id) AS reviews,
-				(
-				(COUNT(cr.id) * AVG(r.rating)) + (${minReviews} * ${avgRating})
-				) / (
-				COUNT(cr.id) + ${minReviews}
-				) AS score
+				COUNT(cr.id)::integer AS reviews,
+				COUNT(l.id)::integer AS lessons
 			FROM
 				"Course" c
-			JOIN
+			LEFT JOIN
 				"CourseReview" cr ON c."id" = cr."courseId"
-			JOIN
+			LEFT JOIN
 				"Review" r ON cr."reviewId" = r."id"
 			LEFT JOIN
-				"Student" s ON c."id" = s."courseId" AND s."userId" = ${session.userId}
-			WHERE
-				s."id" IS NULL
+				"Lesson" l ON l."courseId" = c."id"
 			GROUP BY
 				c."id"
 			ORDER BY
-				score DESC
-			LIMIT
-				1;
-		`) as Course[];
-
-		if (!course) throw new NotFoundException("Course not found");
+				reviews DESC;
+		`) as Array<
+			Course & {
+				reviews: number;
+				lessons: number;
+			}
+		>;
 
 		return {
-			course,
+			courses,
+		};
+	}
+
+	@Get("names")
+	async getCourseNames() {
+		const courses = await this.prisma.course.findMany({
+			select: {
+				id: true,
+				name: true,
+			},
+		});
+
+		return {
+			courses,
 		};
 	}
 
 	@Get(":id")
-	async getCourse(@Param("id") id: string) {
-		const [course] = (await this.prisma.$queryRaw`
-			SELECT
-				c.*,
-				COUNT(cr.id) AS reviews,
-				AVG(r.rating) AS rating,
-				(SUM(CASE WHEN r.rating >= 4 THEN 1 ELSE 0 END) / COUNT(cr.id)) as positiveReviews,
-			FROM
-				"Course" c
-			LEFT JOIN
-				"CourseReview" cr ON c."id" = cr."courseId"
-			LEFT JOIN
-				"Review" r ON cr."reviewId" = r."id"
-			WHERE
-				c."id" = ${id}
-			GROUP BY
-				c."id"
-		`) as Course[];
-
-		if (!course) throw new NotFoundException("Course not found");
-
-		const [expert] = (await this.prisma.$queryRaw`
-			SELECT
-				e.*,
-				AVG(r.rating) AS rating,
-                COUNT(DISTINCT s.userId) AS students,
-                COUNT(DISTINCT c.id) AS courses
-			FROM
-				"Expert" e
-			JOIN
-				"Course" c ON e."id" = c."authorId"
-			LEFT JOIN
-				"CourseReview" cr ON c."id" = cr."courseId"
-			LEFT JOIN
-				"Review" r ON cr."reviewId" = r."id"
-            LEFT JOIN
-                "Student" s ON c."id" = s."courseId"
-            WHERE
-                c."id" = ${course.id}
-			GROUP BY
-				e."id"
-			ORDER BY
-				rating DESC;
-		`) as Expert[];
-
-		if (!expert) throw new NotFoundException("Course expert not found");
-
-		return {
-			course: {
-				...course,
-				expert,
-			},
-		};
-	}
-
-	@Get(":id/lessons")
-	async getCourseLessons(
+	async getCourse(
 		@Param("id") id: string,
 		@Session() session: SessionWithData,
 	) {
+		const userId = session.userId || null;
+
 		const course = await this.prisma.course.findFirst({
 			where: {
 				id,
 			},
+			include: {
+				reviews: {
+					include: {
+						review: true,
+					},
+				},
+				author: {
+					include: {
+						user: {
+							include: {
+								avatarFile: true,
+							},
+						},
+					},
+				},
+			},
 		});
 
 		if (!course) throw new NotFoundException("Course not found");
 
-		const student = await this.prisma.student.findFirst({
+		const lessons = await this.prisma.lesson.findMany({
 			where: {
 				courseId: course.id,
-				userId: session.userId,
 			},
 			select: {
-				progress: true,
+				id: true,
+				name: true,
+				topics: true,
+				order: true,
+			},
+			orderBy: {
+				order: "asc",
 			},
 		});
 
-		const lessons = await this.prisma.courseLesson.findMany({
+		const authorStudents = await this.prisma.studentProgress.count({
+			where: {
+				course: {
+					authorId: course.authorId,
+				},
+			},
+		});
+
+		const authorCourses = await this.prisma.course.count({
+			where: {
+				authorId: course.authorId,
+			},
+		});
+
+		const authorReviews = await this.prisma.expertReview.findMany({
+			where: {
+				expertId: course.authorId,
+			},
+			select: {
+				review: true,
+			},
+		});
+
+		const authorRating =
+			authorReviews
+				.map((er) => er.review.rating)
+				.reduce((prev, rating) => prev + rating, 0) /
+			(authorReviews.length || 1);
+
+		const reviews = await this.prisma.courseReview.findMany({
 			where: {
 				courseId: course.id,
 			},
+			select: {
+				review: true,
+			},
 		});
 
+		const rating =
+			reviews
+				.map((cr) => cr.review.rating)
+				.reduce((prev, rating) => prev + rating, 0) /
+			(reviews.length || 1);
+
+		const positiveReviews =
+			(reviews.filter((cr) => cr.review.rating >= 4).length /
+				(reviews.length || 1)) *
+			100;
+
+		const isUserEnrolled =
+			userId &&
+			(await this.prisma.courseEnrollment.findFirst({
+				where: {
+					userId: {
+						equals: userId,
+					},
+					OR: [
+						{
+							courseId: course.id,
+						},
+						{
+							pack: course.type,
+						},
+					],
+				},
+			}));
+
+		const {progress} = (userId &&
+			(await this.prisma.studentProgress.findFirst({
+				where: {
+					userId,
+					courseId: course.id,
+				},
+				select: {
+					progress: true,
+				},
+			}))) || {progress: 0};
+
+		const currentLessonId = isUserEnrolled ? lessons[progress]?.id : null;
+
 		return {
-			lessons,
-			progress: student.progress,
+			course: {
+				...course,
+				price: course.price || PACK_PRICE[course.type],
+				author: {
+					...sanitized.expert(course.author),
+					students: authorStudents,
+					courses: authorCourses,
+					rating: authorRating,
+				},
+				lessons,
+				rating,
+				reviews: reviews.length,
+				positiveReviews,
+				isEnrolled: isUserEnrolled,
+				progress,
+				currentLessonId,
+			},
 		};
 	}
 
 	@UseGuards(IsAuthenticated)
 	@Get(":courseId/lessons/:lessonId")
-	async getCourseLesson(
+	async getLesson(
 		@Param("courseId") courseId: string,
 		@Param("lessonId") lessonId: string,
 		@Session() session: SessionWithData,
@@ -214,45 +261,67 @@ export class CourseController {
 			where: {
 				id: courseId,
 			},
+			include: {
+				lessons: {
+					orderBy: {
+						order: "asc",
+					},
+				},
+				previewFile: true,
+			},
 		});
 
 		if (!course) throw new NotFoundException("Course not found");
 
-		const lesson = await this.prisma.courseLesson.findFirst({
+		const lesson = await this.prisma.lesson.findFirst({
 			where: {
 				id: lessonId,
 				courseId: course.id,
+			},
+			include: {
+				videoFile: true,
 			},
 		});
 
 		if (!lesson) throw new NotFoundException("Lesson not found");
 
-		const student = await this.prisma.student.findFirst({
+		const isEnrolled = !!(await this.prisma.courseEnrollment.findFirst({
 			where: {
-				courseId: course.id,
 				userId: session.userId,
+				OR: [
+					{
+						courseId: course.id,
+					},
+					{
+						pack: course.type,
+					},
+				],
 			},
-		});
+		}));
 
 		const exception = new BadRequestException(
-			"You don't have permissions to access this lesson",
+			"You can't access this lesson",
 		);
 
-		if (!student) throw exception;
+		if (!isEnrolled) throw exception;
 
-		const canAccess = student.progress + 1 >= lesson.order;
+		const {progress} = (await this.prisma.studentProgress.findFirst({
+			where: {
+				userId: session.userId,
+				courseId: course.id,
+			},
+			select: {
+				progress: true,
+			},
+		})) || {progress: 0};
+
+		const canAccess = progress >= lesson.order;
 
 		if (!canAccess) throw exception;
 
 		const homework = await this.prisma.lessonHomework.findFirst({
 			where: {
 				lessonId: lesson.id,
-			},
-		});
-
-		const question = await this.prisma.homeworkQuestion.findFirst({
-			where: {
-				id: homework.questionId,
 			},
 			include: {
 				test: {
@@ -272,20 +341,33 @@ export class CourseController {
 				homeworkId: homework.id,
 				userId: session.userId,
 			},
+			orderBy: {
+				createdAt: "desc",
+			},
 			include: {
-				feedback: true,
+				feedback: {
+					include: {
+						expert: {
+							include: {
+								user: {
+									include: {
+										avatarFile: true,
+									},
+								},
+							},
+						},
+						review: true,
+					},
+				},
+				file: true,
 				submittedTest: {
 					include: {
-						test: {
+						submittedAnswers: {
 							include: {
-								questions: {
+								answer: true,
+								question: {
 									include: {
 										answers: true,
-										submittedAnswers: {
-											where: {
-												userId: session.userId,
-											},
-										},
 									},
 								},
 							},
@@ -295,308 +377,41 @@ export class CourseController {
 			},
 		});
 
+		const isReviewedByUser = !!(await this.prisma.lessonReview.findFirst({
+			where: {
+				lessonId: lesson.id,
+				userId: session.userId,
+			},
+		}));
+
 		const video = await this.uploadService.getPresignedUrlToGet(
-			extractObject(lesson.video).objectKey(),
+			extractObject(lesson.videoFile.url).objectKey(),
 		);
 
-		if (question.type === "TEST") {
-			return {
-				lesson: {
-					...lesson,
-					video,
-					answer,
-					question: {
-						...question,
-						test: question.test,
+		return {
+			lesson: {
+				...sanitized.lesson(lesson),
+				video,
+				homework: {
+					...sanitized.homework(homework),
+					answer: answer && {
+						...sanitized.homeworkAnswer(answer),
+						feedback:
+							answer.feedback &&
+							sanitized.homeworkAnswerFeedback(answer.feedback),
 					},
 				},
-			};
-		} else if (question.type === "TEXT") {
-			return {
-				lesson: {
-					...lesson,
-					video,
-					answer,
-					question: {
-						...question,
-						text: question.text,
-					},
+				isReviewed: isReviewedByUser,
+				course: {
+					...sanitized.course(course),
+					lessons: course.lessons.map(sanitized.lesson),
+					progress,
 				},
-			};
-		}
+			},
+		};
 	}
 
-	@Post(":courseId/lessons/:lessonId/homework/answer")
-	async submitHomeworkAnswer(
-		@Param("courseId") courseId: string,
-		@Param("lessonId") lessonId: string,
-		@Session() session: SessionWithData,
-		@Body() dto: dtos.SubmitHomeworkAnswerDto,
-	) {
-		const course = await this.prisma.course.findFirst({
-			where: {
-				id: courseId,
-			},
-		});
-
-		if (!course) throw new NotFoundException("Course not found");
-
-		const student = await this.prisma.student.findFirst({
-			where: {
-				courseId: course.id,
-				userId: session.userId,
-			},
-		});
-
-		const canAccessCourse = !!student;
-
-		if (!canAccessCourse)
-			throw new BadRequestException("Can't access this course");
-
-		const lesson = await this.prisma.courseLesson.findFirst({
-			where: {
-				id: lessonId,
-				courseId,
-			},
-		});
-
-		if (!lesson) throw new NotFoundException("Lesson not found");
-
-		const canAccessLesson = student.progress + 1 >= lesson.order;
-
-		if (!canAccessLesson)
-			throw new BadRequestException("Can't access this lesson");
-
-		const homework = await this.prisma.lessonHomework.findFirst({
-			where: {
-				lessonId: lesson.id,
-			},
-			include: {
-				question: true,
-			},
-		});
-
-		if (!homework) throw new BadRequestException("No homework provided");
-
-		const answers = await this.prisma.homeworkAnswer.count({
-			where: {
-				homeworkId: homework.id,
-				userId: session.userId,
-			},
-		});
-
-		const alreadyAnswered = answers > 0;
-
-		if (alreadyAnswered)
-			throw new BadRequestException(
-				"You have already provided the answer",
-			);
-
-		if (homework.question.type === "TEXT") {
-			const answerExists = dto.text || dto.file;
-
-			if (!answerExists)
-				throw new BadRequestException(
-					"Provide a text and/or file as an answer",
-				);
-
-			const answer = await this.prisma.homeworkAnswer.create({
-				data: {
-					homeworkId: homework.id,
-					userId: session.userId,
-					text: dto.text,
-					file: dto.file,
-					status: "PENDING",
-				},
-			});
-
-			return {
-				answer,
-			};
-		} else if (homework.question.type === "TEST") {
-			const totalQ = await this.prisma.testQuestion.count({
-				where: {
-					testId: homework.question.testId,
-				},
-			});
-
-			const providedQ = await this.prisma.testQuestion.count({
-				where: {
-					id: {
-						in: Object.keys(dto.answers),
-					},
-					testId: homework.question.testId,
-				},
-			});
-
-			const questionsValid = totalQ === providedQ;
-
-			if (!questionsValid)
-				throw new BadRequestException("Invalid questions");
-
-			const entries = Object.entries(dto.answers);
-
-			for (let i = 0; i < entries.length; i++) {
-				const [questionId, answerId] = entries[i];
-
-				const answers = await this.prisma.testAnswer.count({
-					where: {
-						testId: homework.question.testId,
-						id: answerId,
-					},
-				});
-
-				const answerExists = answers > 0;
-
-				if (!answerExists)
-					throw new BadRequestException("Invalid answer id");
-
-				await this.prisma.userTestAnswer.create({
-					data: {
-						questionId,
-						answerId,
-						userId: session.userId,
-						testId: homework.question.testId,
-					},
-				});
-			}
-
-			const submittedTest = await this.prisma.userTest.create({
-				data: {
-					testId: homework.question.testId,
-					userId: session.userId,
-				},
-			});
-
-			const answer = await this.prisma.homeworkAnswer.create({
-				data: {
-					homeworkId: homework.id,
-					userId: session.userId,
-					submittedTestId: submittedTest.id,
-					status: "PENDING",
-				},
-			});
-
-			return {
-				answer,
-			};
-		}
-	}
-
-	@Put(":courseId/lessons/:lessonId/homework/answer")
-	async updateHomeworkAnswer(
-		@Param("courseId") courseId: string,
-		@Param("lessonId") lessonId: string,
-		@Session() session: SessionWithData,
-		@Body() dto: dtos.UpdateHomeworkAnswerDto,
-	) {
-		const course = await this.prisma.course.findFirst({
-			where: {
-				id: courseId,
-			},
-		});
-
-		if (!course) throw new NotFoundException("Course not found");
-
-		const student = await this.prisma.student.findFirst({
-			where: {
-				courseId: course.id,
-				userId: session.userId,
-			},
-		});
-
-		const canAccessCourse = !!student;
-
-		if (!canAccessCourse)
-			throw new BadRequestException("Can't access this course");
-
-		const lesson = await this.prisma.courseLesson.findFirst({
-			where: {
-				id: lessonId,
-				courseId,
-			},
-		});
-
-		if (!lesson) throw new NotFoundException("Lesson not found");
-
-		const canAccessLesson = student.progress + 1 >= lesson.order;
-
-		if (!canAccessLesson)
-			throw new BadRequestException("Can't access this lesson");
-
-		const homework = await this.prisma.lessonHomework.findFirst({
-			where: {
-				lessonId: lesson.id,
-			},
-			include: {
-				question: true,
-			},
-		});
-
-		if (!homework) throw new BadRequestException("No homework provided");
-
-		const answer = await this.prisma.homeworkAnswer.findFirst({
-			where: {
-				userId: session.userId,
-				homeworkId: homework.id,
-			},
-		});
-
-		if (!answer)
-			throw new BadRequestException("No answer has been provided yet");
-
-		if (homework.question.type === "TEST") {
-			const entries = Object.entries(dto.answers);
-
-			for (let i = 0; i < entries.length; i++) {
-				const [questionId, answerId] = entries[i];
-
-				const answers = await this.prisma.testAnswer.count({
-					where: {
-						testId: homework.question.testId,
-						questionId,
-					},
-				});
-
-				const answerExists = answers > 0;
-
-				if (!answerExists)
-					throw new BadRequestException("Invalid answer id");
-
-				await this.prisma.userTestAnswer.update({
-					where: {
-						userId_testId_questionId: {
-							testId: homework.question.testId,
-							questionId,
-							userId: session.userId,
-						},
-					},
-					data: {
-						answerId,
-					},
-				});
-			}
-
-			return {
-				answer,
-			};
-		} else if (homework.question.type === "TEXT") {
-			const updated = await this.prisma.homeworkAnswer.update({
-				where: {
-					id: answer.id,
-				},
-				data: {
-					text: isUndefined(dto.text) ? answer.text : dto.text,
-					file: isUndefined(dto.file) ? answer.file : dto.file,
-				},
-			});
-
-			return {
-				answer: updated,
-			};
-		}
-	}
-
+	@UseGuards(IsAuthenticated)
 	@Post(":id/reviews")
 	async reviewCourse(
 		@Param("id") id: string,
@@ -617,25 +432,37 @@ export class CourseController {
 			},
 		});
 
-		const creview = await this.prisma.courseReview.create({
+		await this.prisma.courseReview.create({
 			data: {
-				courseId: course.id,
 				userId: session.userId,
-				feedback: dto.feedback,
+				courseId: course.id,
+				feedback: dto.comment,
 				reviewId: review.id,
 			},
 		});
 
-		return {
-			review: creview,
-		};
+		const expertReview = await this.prisma.review.create({
+			data: {
+				rating: dto.expertRating,
+			},
+		});
+
+		await this.prisma.expertReview.create({
+			data: {
+				userId: session.userId,
+				expertId: course.authorId,
+				comment: dto.comment,
+				reviewId: expertReview.id,
+			},
+		});
 	}
 
+	@UseGuards(IsAuthenticated)
 	@Post(":courseId/lessons/:lessonId/reviews")
-	async reviewCourseLesson(
+	async reviewLesson(
 		@Param("courseId") courseId: string,
 		@Param("lessonId") lessonId: string,
-		@Body() dto: dtos.ReviewCourseDto,
+		@Body() dto: dtos.ReviewLessonDto,
 		@Session() session: SessionWithData,
 	) {
 		const course = await this.prisma.course.findFirst({
@@ -646,9 +473,10 @@ export class CourseController {
 
 		if (!course) throw new NotFoundException("Course not found");
 
-		const lesson = await this.prisma.courseLesson.findFirst({
+		const lesson = await this.prisma.lesson.findFirst({
 			where: {
 				id: lessonId,
+				courseId: course.id,
 			},
 		});
 
@@ -656,71 +484,33 @@ export class CourseController {
 
 		const review = await this.prisma.review.create({
 			data: {
-				rating: dto.rating,
+				rating: +dto.rating,
 			},
 		});
 
-		const lreview = await this.prisma.courseLessonReview.create({
+		await this.prisma.lessonReview.create({
 			data: {
-				lessonId: lesson.id,
 				userId: session.userId,
+				lessonId: lesson.id,
 				reviewId: review.id,
 			},
 		});
-
-		return {
-			review: lreview,
-		};
 	}
 
-	@UseGuards(IsExpert)
-	@Post("answers/:answerId/feedback")
-	async leaveAnswerFeedback(
-		@Param("answerId") answerId: string,
-		@Body() dto: dtos.LeaveAnswerFeedbackDto,
-	) {
-		const answer = await this.prisma.homeworkAnswer.findFirst({
-			where: {
-				id: answerId,
-			},
-		});
-
-		if (!answer) throw new NotFoundException("Answer not found");
-
-		const review = await this.prisma.review.create({
-			data: {
-				rating: dto.rating,
-			},
-		});
-
-		const feedback = await this.prisma.homeworkAnswerFeedback.create({
-			data: {
-				answerId: answer.id,
-				reviewId: review.id,
-				comment: dto.comment,
-			},
-		});
-
-		return {
-			feedback,
-		};
-	}
-
+	@UseGuards(IsAuthenticated)
 	@Get(":id/certificate")
 	async getCourseCertificate(
 		@Param("id") id: string,
 		@Session() session: SessionWithData,
 	) {
-		const students = await this.prisma.student.count({
+		const student = await this.prisma.studentProgress.findFirst({
 			where: {
 				userId: session.userId,
 				courseId: id,
 			},
 		});
 
-		const studentExists = students > 0;
-
-		if (!studentExists)
+		if (!student)
 			throw new BadRequestException("You can't access this course");
 
 		const course = await this.prisma.course.findFirst({
@@ -731,13 +521,43 @@ export class CourseController {
 
 		if (!course) throw new NotFoundException("Course not found");
 
+		const lessons = await this.prisma.lesson.count({
+			where: {
+				courseId: course.id,
+			},
+		});
+
+		const isCourseCompleted = student.progress >= lessons;
+
+		if (!isCourseCompleted)
+			throw new BadRequestException("User hasn't completed the course");
+
+		const isReviewed = !!(await this.prisma.courseReview.findFirst({
+			where: {
+				courseId: course.id,
+				userId: session.userId,
+			},
+		}));
+
+		if (!isReviewed)
+			return {
+				isReviewed: false,
+				certificate: null,
+			};
+
 		const pdf = await generateCertificatePdf(
 			`${session.user.firstName} ${session.user.lastName}`,
 			course.name,
 		);
 
+		const {Location: certificate} = await this.uploadService.upload(
+			pdf,
+			"application/pdf",
+		);
+
 		return {
-			certificate: pdf,
+			isReviewed: true,
+			certificate,
 		};
 	}
 }

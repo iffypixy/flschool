@@ -1,11 +1,15 @@
-import {IsInt, IsString, Max, Min} from "class-validator";
+import {IsInt, IsString} from "class-validator";
 
 export class ReviewCourseDto {
 	@IsString()
-	feedback: string;
+	comment: string;
 
 	@IsInt()
-	@Min(0)
-	@Max(5)
 	rating: number;
+
+	@IsString()
+	expertComment: string;
+
+	@IsInt()
+	expertRating: number;
 }

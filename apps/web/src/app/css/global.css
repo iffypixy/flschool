@@ -1,0 +1,42 @@
+@import "./fonts.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	html {
+		font-size: 62.5%;
+		box-sizing: border-box;
+
+		@media screen(lg) {
+			font-size: 60%;
+		}
+
+		@media screen(md) {
+			font-size: 55%;
+		}
+
+		@media screen(sm) {
+			font-size: 50%;
+		}
+
+		@media screen(xs) {
+			font-size: 45%;
+		}
+	}
+
+	*,
+	*::before,
+	*::after {
+		box-sizing: inherit;
+		margin: 0;
+		padding: 0;
+	}
+
+	body {
+		@apply font-tildasans;
+		font-size: 1.6rem;
+		background-color: #f8f8f8;
+	}
+}

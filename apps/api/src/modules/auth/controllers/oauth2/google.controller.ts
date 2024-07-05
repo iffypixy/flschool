@@ -3,6 +3,7 @@ import {ConfigService} from "@nestjs/config";
 import {SessionWithData} from "express-session";
 import {Response} from "express";
 
+import {PromocodeService} from "@modules/promocode";
 import {OAuth2Service} from "@lib/oauth2";
 import {PrismaService} from "@lib/prisma";
 
@@ -14,6 +15,7 @@ export class AuthOAuth2GoogleController {
 		private readonly prisma: PrismaService,
 		private readonly config: ConfigService,
 		private readonly oauth2: OAuth2Service,
+		private readonly promocodeService: PromocodeService,
 	) {}
 
 	@Get("/")
@@ -30,8 +32,17 @@ export class AuthOAuth2GoogleController {
 		const credentials = await this.oauth2.google.loadCredentials(dto.code);
 
 		const provider = await this.prisma.userAuthProvider.findFirst({
-			where: {uid: credentials.id, name: "GOOGLE"},
-			include: {user: true},
+			where: {
+				uid: credentials.id,
+				name: "GOOGLE",
+			},
+			include: {
+				user: {
+					include: {
+						avatarFile: true,
+					},
+				},
+			},
 		});
 
 		const hasAccount = !!provider;
@@ -43,8 +54,11 @@ export class AuthOAuth2GoogleController {
 			const user = await this.prisma.user.create({
 				data: {
 					email: credentials.email,
-					firstName: "",
-					lastName: "",
+					firstName: credentials.given_name,
+					lastName: credentials.family_name,
+				},
+				include: {
+					avatarFile: true,
 				},
 			});
 
@@ -55,6 +69,8 @@ export class AuthOAuth2GoogleController {
 					userId: user.id,
 				},
 			});
+
+			await this.promocodeService.createPromocode(user.id);
 
 			session.user = user;
 			session.userId = user.id;

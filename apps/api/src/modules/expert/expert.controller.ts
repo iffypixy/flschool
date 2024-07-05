@@ -1,47 +1,139 @@
-import {Controller, Get, Query} from "@nestjs/common";
+import {Controller, Get, NotFoundException, Param} from "@nestjs/common";
+import {Prisma} from "@prisma/client";
 
-import {PaginationDto} from "@lib/dtos";
 import {PrismaService} from "@lib/prisma";
+import {sanitized} from "@lib/sanitized";
 
 @Controller("experts")
 export class ExpertController {
 	constructor(private readonly prisma: PrismaService) {}
 
 	@Get("/")
-	async getExperts(@Query() query: PaginationDto) {
-		const minStudents = 0;
-		const avgRating = 4;
+	async getExperts() {
+		const experts = await this.prisma.expert.findMany({
+			include: {
+				user: {
+					include: {
+						avatarFile: true,
+					},
+				},
+				reviews: {
+					include: {
+						review: true,
+					},
+				},
+			},
+		});
 
-		const experts = await this.prisma.$queryRaw`
-			SELECT
-				e.*,
-				AVG(rv.rating) AS rating,
-				COUNT(DISTINCT s.user_id) AS students,
-				COUNT(DISTINCT c.id) AS courses,
-				((COUNT(DISTINCT s.id) * AVG(r.rating)) + (${minStudents} * ${avgRating})) /
-				(COUNT(DISTINCT s.id) + ${minStudents}) AS score
-			FROM
-				"Expert" e
-			JOIN
-				"Course" c ON e."id" = c."authorId"
-			LEFT JOIN
-				"CourseReview" cr ON c."id" = cr."courseId"
-			LEFT JOIN
-				"Review" r ON cr."reviewId" = r."id"
-			LEFT JOIN
-				"Student" s ON c."id" = s."courseId"
-			GROUP BY
-				e.id
-			ORDER BY
-				score DESC
-			LIMIT
-				${query.limit}
-			OFFSET
-				${query.offset};
-		`;
+		const list: Array<{
+			expert: Prisma.ExpertGetPayload<{
+				include: {
+					user: {
+						include: {
+							avatarFile: true;
+						};
+					};
+				};
+			}>;
+			students: number;
+			courses: number;
+			rating: number;
+		}> = [];
+
+		for (let i = 0; i < experts.length; i++) {
+			const expert = experts[i];
+
+			const students = await this.prisma.studentProgress.count({
+				where: {
+					course: {
+						authorId: expert.id,
+					},
+				},
+			});
+
+			const courses = await this.prisma.course.count({
+				where: {
+					authorId: expert.id,
+				},
+			});
+
+			const rating =
+				expert.reviews
+					.map((er) => er.review.rating)
+					.reduce((prev, rating) => prev + rating, 0) /
+				(expert.reviews.length || 1);
+
+			list.push({
+				expert,
+				students,
+				rating,
+				courses,
+			});
+		}
+
+		const mapped = list.map(({expert, students, courses, rating}) => ({
+			...sanitized.expert(expert),
+			students,
+			courses,
+			rating,
+		}));
+
+		mapped.sort((a, b) => b.rating - a.rating);
 
 		return {
-			experts,
+			experts: mapped,
+		};
+	}
+
+	@Get("/:id")
+	async getExpert(@Param("id") id: string) {
+		const expert = await this.prisma.expert.findFirst({
+			where: {
+				id,
+			},
+			include: {
+				user: {
+					include: {
+						avatarFile: true,
+					},
+				},
+				reviews: {
+					include: {
+						review: true,
+					},
+				},
+			},
+		});
+
+		if (!expert) throw new NotFoundException("Expert not found");
+
+		const students = await this.prisma.studentProgress.count({
+			where: {
+				course: {
+					authorId: expert.id,
+				},
+			},
+		});
+
+		const courses = await this.prisma.course.count({
+			where: {
+				authorId: expert.id,
+			},
+		});
+
+		const rating =
+			expert.reviews
+				.map((er) => er.review.rating)
+				.reduce((prev, rating) => prev + rating, 0) /
+			(expert.reviews.length || 1);
+
+		return {
+			expert: {
+				...sanitized.expert(expert),
+				students,
+				courses,
+				rating,
+			},
 		};
 	}
 }

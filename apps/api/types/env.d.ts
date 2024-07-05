@@ -20,6 +20,9 @@ declare global {
 			AWS_S3_REGION: string;
 			AWS_S3_PUBLIC_KEY: string;
 			AWS_S3_SECRET_KEY: string;
+			AWS_S3_BUCKET: string;
+			AWS_S3_URL: string;
+			SECRET_KEY: string;
 		}
 	}
 }

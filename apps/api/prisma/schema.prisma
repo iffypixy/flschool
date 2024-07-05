@@ -7,6 +7,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model File {
+	id String @id @default(uuid())
+	userId String
+	name String
+	url String
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
+
+	user User @relation("UserFiles", fields: [userId], references: [id])
+
+	userAvatars User[] @relation("AvatarFile")
+	coursePreviews Course[]
+	alumnusAvatars Alumnus[] @relation("AlumnusAvatar")
+	alumnusIncomes Alumnus[] @relation("AlumnusIncome")
+	alumnusCertificates Alumnus[] @relation("AlumnusCertificate")
+	alumnusReviews Alumnus[] @relation("AlumnusReview")
+	homeworkAnswers HomeworkAnswer[]
+	lessons Lesson[]
+}
+
 enum UserRole {
   USER
   EXPERT
@@ -18,66 +38,92 @@ model User {
 	email String @unique
 	firstName String
 	lastName String
+	avatarFileId String?
 	password String?
 	role UserRole @default(USER)
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
+
+	avatarFile File? @relation("AvatarFile", fields: [avatarFileId], references: [id])
 
 	expert Expert?
-	purchases Purchase[]
 	homeworkAnswers HomeworkAnswer[]
-	submittedTests UserTest[]
-	submittedTestAnswers UserTestAnswer[]
+	submittedTests SubmittedTest[]
+	submittedTestAnswers SubmittedTestAnswer[]
 	courseReviews CourseReview[]
-	courseLessonReviews CourseLessonReview[]
-	students Student[]
+	lessonReviews LessonReview[]
+	studentProgresses StudentProgress[]
 	providers UserAuthProvider[]
+	promocodes Promocode[]
+	promocodeUsage PromocodeUsage?
+	courseEnrollments CourseEnrollment[]
+	expertReviews ExpertReview[]
+	files File[] @relation("UserFiles")
 }
 
-model UserAuthProvider {
-  	id String @id @default(uuid())
-  	name AuthProviderName
-  	uid String
-  	user User @relation(fields: [userId], references: [id])
+model Promocode {
+	id String @id @default(uuid())
+	code String @unique
+	userId String
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
 
+	user User @relation(fields: [userId], references: [id])
+
+	usages PromocodeUsage[]
+}
+
+model PromocodeUsage {
+	id String @id @default(uuid())
 	userId String @unique
+	promocodeId String
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
+
+	promocode Promocode @relation(fields: [promocodeId], references: [id])
+	user User @relation(fields: [userId], references: [id])
 }
 
 enum AuthProviderName {
   GOOGLE
 }
 
+model UserAuthProvider {
+  	id String @id @default(uuid())
+  	name AuthProviderName
+  	uid String
+	userId String @unique
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
+
+  	user User @relation(fields: [userId], references: [id])
+}
+
 model Review {
 	id String @id @default(uuid())
 	rating Int
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
 
 	homeworkAnswerFeedbacks HomeworkAnswerFeedback[]
 	courseReviews CourseReview[]
-	courseLessonReviews CourseLessonReview[]
-}
-
-enum PurchaseType {
-	FL_TEENS_COURSES
-	EDUCATION_COURSES
-	LANGUAGE_COURSE
-}
-
-model Purchase {
-	id String @id @default(uuid())
-	user User @relation(fields: [userId], references: [id])
-	course Course? @relation(fields: [courseId], references: [id])
-	type PurchaseType
-
-	userId String
-	courseId String?
+	lessonReviews LessonReview[]
+	expertReviews ExpertReview[]
 }
 
 model Expert {
 	id String @id @default(uuid())
-	user User @relation(fields: [userId], references: [id])
-	about String @default("")
-
 	userId String @unique
+	about String @default("")
+	plainPassword String
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
+
+	user User @relation(fields: [userId], references: [id])
 
 	courses Course[]
+	reviews ExpertReview[]
+	homeworkAnswerFeedbacks HomeworkAnswerFeedback[]
 }
 
 enum CourseType {
@@ -86,199 +132,217 @@ enum CourseType {
 	LANGUAGE
 }
 
+enum CourseLanguage {
+	KZ
+	RU
+	EN
+}
+
 model Course {
 	id String @id @default(uuid())
-	author Expert @relation(fields: [authorId], references: [id])
+	authorId String
 	name String
 	hook String
 	description String
-	language String
-	completionPeriod Int
+	language CourseLanguage
+	duration Int
 	audience String[]
 	type CourseType
-	preview String
+	previewFileId String
 	price Int?
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
 
-	authorId String
+	author Expert @relation(fields: [authorId], references: [id], onDelete: Cascade)
+	previewFile File @relation(fields: [previewFileId], references: [id])
 
-	purchases Purchase[]
-	lessons CourseLesson[]
+	lessons Lesson[]
 	reviews CourseReview[]
-	students Student[]
+	studentProgresses StudentProgress[]
+	courseEnrollments CourseEnrollment[]
+	alumni Alumnus[]
 }
 
-model CourseLesson {
+model Lesson {
 	id String @id @default(uuid())
-	course Course @relation(fields: [courseId], references: [id])
+	courseId String
 	name String
 	topics String[]
-	video String
+	videoFileId String
 	order Int
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
 
-	courseId String
+	course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+	videoFile File @relation(fields: [videoFileId], references: [id])
 
 	homework LessonHomework?
-	reviews CourseLessonReview[]
+	reviews LessonReview[]
 }
 
-model LessonHomework {
-	id String @id @default(uuid())
-	lesson CourseLesson @relation(fields: [lessonId], references: [id])
-	question HomeworkQuestion @relation(fields: [questionId], references: [id])
-
-	lessonId String @unique
-	questionId String @unique
-
-	answers HomeworkAnswer[]
-}
-
-enum HomeworkQuestionType {
+enum LessonHomeworkType {
 	TEST
 	TEXT
 }
 
-model HomeworkQuestion {
+model LessonHomework {
 	id String @id @default(uuid())
-	type HomeworkQuestionType
-	text String?
-	test Test? @relation(fields: [testId], references: [id])
-
+	lessonId String @unique
+	type LessonHomeworkType
 	testId String? @unique
+	text String?
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
 
-	homework LessonHomework?
+	test Test? @relation(fields: [testId], references: [id])
+	lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+	answers HomeworkAnswer[]
 }
 
 enum HomeworkAnswerStatus {
 	PENDING
-	CHECKED
+	APPROVED
+	FAILED
 }
 
 model HomeworkAnswer {
 	id String @id @default(uuid())
-	homework LessonHomework @relation(fields: [homeworkId], references: [id])
-	user User @relation(fields: [userId], references: [id])
-	file String?
-	text String?
-	submittedTest UserTest? @relation(fields: [submittedTestId], references: [id])
-	status HomeworkAnswerStatus
-
 	homeworkId String
 	userId String
 	submittedTestId String?
+	fileId String?
+	text String?
+	status HomeworkAnswerStatus
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
+
+	homework LessonHomework @relation(fields: [homeworkId], references: [id], onDelete: Cascade)
+	user User @relation(fields: [userId], references: [id])
+	file File? @relation(fields: [fileId], references: [id])
+	submittedTest SubmittedTest? @relation(fields: [submittedTestId], references: [id])
 
 	feedback HomeworkAnswerFeedback?
 }
 
 model HomeworkAnswerFeedback {
 	id String @id @default(uuid())
-	answer HomeworkAnswer @relation(fields: [answerId], references: [id])
-	review Review @relation(fields: [reviewId], references: [id])
-	comment String?
-
+	expertId String
 	answerId String @unique
 	reviewId String
+	comment String?
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
+
+	expert Expert @relation(fields: [expertId], references: [id], onDelete: Cascade)
+	answer HomeworkAnswer @relation(fields: [answerId], references: [id], onDelete: Cascade)
+	review Review @relation(fields: [reviewId], references: [id])
 }
 
 model Test {
 	id String @id @default(uuid())
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
 
-	homeworkQuestion HomeworkQuestion?
+	homework LessonHomework?
 	questions TestQuestion[]
 	answers TestAnswer[]
-	submittedTests UserTest[]
-	submittedAnswers UserTestAnswer[]
+	submittedTests SubmittedTest[]
+	submittedAnswers SubmittedTestAnswer[]
 }
 
 model TestQuestion {
 	id String @id @default(uuid())
-	test Test @relation(fields: [testId], references: [id])
+	testId String
 	text String
 	order Int
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
 
-	testId String
+	test Test @relation(fields: [testId], references: [id])
 
 	answers TestAnswer[]
-	submittedAnswers UserTestAnswer[]
+	submittedAnswers SubmittedTestAnswer[]
 }
 
 model TestAnswer {
 	id String @id @default(uuid())
-	test Test @relation(fields: [testId], references: [id])
-	question TestQuestion @relation(fields: [questionId], references: [id])
+	testId String
+	questionId String
 	text String
 	isCorrect Boolean
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
 
-	questionId String
-	testId String
-
-	submittedAnswers UserTestAnswer[]
-}
-
-model UserTestAnswer {
 	test Test @relation(fields: [testId], references: [id])
 	question TestQuestion @relation(fields: [questionId], references: [id])
-	answer TestAnswer @relation(fields: [answerId], references: [id])
-	user User @relation(fields: [userId], references: [id])
 
+	submittedAnswers SubmittedTestAnswer[]
+}
+
+model SubmittedTestAnswer {
+	id String @id @default(uuid())
 	testId String
 	questionId String
 	answerId String
 	userId String
+	submittedTestId String
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
 
-	@@id([userId, testId, questionId])
+	user User @relation(fields: [userId], references: [id])
+	test Test @relation(fields: [testId], references: [id])
+	question TestQuestion @relation(fields: [questionId], references: [id])
+	answer TestAnswer @relation(fields: [answerId], references: [id])
+	submittedTest SubmittedTest @relation(fields: [submittedTestId], references: [id])
 }
 
-model UserTest {
+model SubmittedTest {
 	id String @id @default(uuid())
+	testId String
+	userId String
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
+
 	test Test @relation(fields: [testId], references: [id])
 	user User @relation(fields: [userId], references: [id])
 
-	testId String
-	userId String
-
 	homeworkAnswers HomeworkAnswer[]
+	submittedAnswers SubmittedTestAnswer[]
 }
 
 model CourseReview {
 	id String @id @default(uuid())
-	user User @relation(fields: [userId], references: [id])
-	course Course @relation(fields: [courseId], references: [id])
-	review Review @relation(fields: [reviewId], references: [id])
-	feedback String
-
 	userId String
 	courseId String
 	reviewId String
+	feedback String
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
+
+	user User @relation(fields: [userId], references: [id])
+	course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+	review Review @relation(fields: [reviewId], references: [id])
 }
 
-model CourseLessonReview {
+model LessonReview {
 	id String @id @default(uuid())
-	user User @relation(fields: [userId], references: [id])
-	lesson CourseLesson @relation(fields: [lessonId], references: [id])
-	review Review @relation(fields: [reviewId], references: [id])
-
 	userId String
 	lessonId String
 	reviewId String
-}
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
 
-model Student {
-	id String @id @default(uuid())
 	user User @relation(fields: [userId], references: [id])
-	course Course @relation(fields: [courseId], references: [id])
-	progress Int @default(0)
-
-	userId String
-	courseId String
+	lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+	review Review @relation(fields: [reviewId], references: [id])
 }
 
 enum RequiredExperience {
 	NONE
-	HALF_YEAR
-	ONE_YEAR
-	TWO_YEARS
-	THREE_YEARS
-	FOUR_YEARS
+	ONE_TO_THREE_YEARS
+	THREE_TO_FIVE_YEARS
+	FIVE_AND_MORE_YEARS
 }
 
 enum EmploymentType {
@@ -297,18 +361,69 @@ model Vacancy {
 	id String @id @default(uuid())
 	company String
 	position String
-	avatar String
 	requiredExperience RequiredExperience
 	employmentType EmploymentType[]
 	modalityType ModalityType[]
 	salary Int
 	link String
-}
-
-model ConsultationRequest {
-	id String @id @default(uuid())
-	phone String
-	name String
 	createdAt DateTime @default(now())
   	updatedAt DateTime @updatedAt
 }
+
+model Alumnus {
+	id String @id @default(uuid())
+	firstName String
+	lastName String
+	about String
+	avatarFileId String
+	courseId String
+	workplace String
+	incomeFileId String
+	certificateFileId String
+	reviewFileId String
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
+
+	avatarFile File @relation("AlumnusAvatar", fields: [avatarFileId], references: [id])
+	course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+	incomeFile File @relation("AlumnusIncome", fields: [incomeFileId], references: [id])
+	certificateFile File @relation("AlumnusCertificate", fields: [certificateFileId], references: [id])
+	reviewFile File @relation("AlumnusReview", fields: [reviewFileId], references: [id])
+}
+
+model StudentProgress {
+	id String @id @default(uuid())
+	userId String
+	courseId String
+	progress Int @default(0)
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
+
+	user User @relation(fields: [userId], references: [id])
+	course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model CourseEnrollment {
+	id String @id @default(uuid())
+	userId String
+	courseId String?
+	pack CourseType?
+
+	user User @relation(fields: [userId], references: [id])
+	course Course? @relation(fields: [courseId], references: [id])
+}
+
+model ExpertReview {
+	id String @id @default(uuid())
+	userId String
+	expertId String
+	reviewId String
+	comment String?
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
+
+	user User @relation(fields: [userId], references: [id])
+	expert Expert @relation(fields: [expertId], references: [id])
+	review Review @relation(fields: [reviewId], references: [id])
+}
+

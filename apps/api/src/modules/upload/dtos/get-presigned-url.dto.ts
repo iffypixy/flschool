@@ -1,11 +1,12 @@
-import {Type} from "class-transformer";
-import {IsInt, IsString} from "class-validator";
+import {IsNumberString, IsString} from "class-validator";
 
 export class GetPresignedUrlDto {
 	@IsString()
 	contentType: string;
 
-	@Type(() => Number)
-	@IsInt()
-	contentLength: number;
+	@IsNumberString()
+	contentLength: string;
+
+	@IsString()
+	name: string;
 }
