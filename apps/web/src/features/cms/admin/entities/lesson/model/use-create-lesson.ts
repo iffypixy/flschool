@@ -10,7 +10,7 @@ export const useCreateLesson = () => {
 		mutationFn: createLesson,
 		onSuccess: () => {
 			invalidateLessonQueries();
-			invalidateCourseQueries;
+			invalidateCourseQueries();
 		},
 	});
 

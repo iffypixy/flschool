@@ -19,12 +19,9 @@ import {
 	SheetClose,
 	Icon,
 } from "@shared/ui";
-import {useViewer, viewerQueryKeys} from "@entities/viewer";
+import {useViewer} from "@entities/viewer";
 import {useLogout} from "@features/auth";
 import {Branch} from "@shared/lib/branch";
-import {queryClient} from "@app/query-client";
-import {GetViewerDto} from "@entities/viewer/api";
-import {MaybeObject} from "@shared/lib/types";
 import {ROUTER_PATHS} from "@app/router/paths";
 
 export const Header: React.FC = () => {
@@ -93,7 +90,7 @@ export const Header: React.FC = () => {
 							</Link>
 
 							<>
-								<SelectLanguageModal />
+								{/* <SelectLanguageModal /> */}
 
 								<Link to={ROUTER_PATHS.SIGN_IN}>
 									<Button>Войти</Button>
