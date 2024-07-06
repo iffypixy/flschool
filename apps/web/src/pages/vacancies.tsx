@@ -214,7 +214,7 @@ export const VacanciesPage: React.FC = () => {
 													<span className="font-semibold text-18 text-primary xs:text-22">
 														{formatPrice(
 															vacancy.salary,
-														)}
+														)}{" "}
 														₸
 													</span>
 												</div>

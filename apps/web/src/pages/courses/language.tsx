@@ -55,9 +55,9 @@ export const LanguageCoursesPage: React.FC = () => {
 						<div className="max-w-[72rem] w-full relative">
 							<Input
 								value={search}
-								onChange={(event) =>
-									setSearch(event.currentTarget.value)
-								}
+								onChange={(event) => {
+									setSearch(event.currentTarget.value);
+								}}
 								placeholder="Введите название языка"
 								className="!rounded-24 py-16 px-28 !bg-[#fff]"
 							/>
@@ -79,11 +79,11 @@ export const LanguageCoursesPage: React.FC = () => {
 							?.filter((c) => {
 								const lcsearch = search.toLowerCase();
 
-								if (lcsearch)
-									return c.name
-										.toLowerCase()
-										.startsWith(lcsearch);
-								else true;
+								if (!lcsearch) return true;
+
+								return c.name
+									.toLowerCase()
+									.startsWith(lcsearch);
 							})
 							.map((course) => (
 								<Link
