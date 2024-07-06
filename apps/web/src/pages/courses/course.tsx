@@ -324,7 +324,7 @@ export const CoursePage: React.FC = () => {
 								</span>
 
 								<span className="text-[#03c1cd] font-bold text-24 xs:text-30">
-									{course?.positiveReviews}
+									{course?.positiveReviews.toFixed(2)}
 								</span>
 							</div>
 						</div>

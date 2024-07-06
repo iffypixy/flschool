@@ -38,7 +38,7 @@ export const GuestHomePage: React.FC = () => {
 	const {courses, isFetching: areCourseNamesFetching} = useCourseNames();
 
 	return (
-		<ContentTemplate className="flex flex-col" showGoBack={false}>
+		<ContentTemplate className="flex flex-col mt-38" showGoBack={false}>
 			<section className="flex">
 				<Container>
 					<div className="flex space-x-12 justify-between xs:flex-wrap xs:space-x-0">
@@ -125,9 +125,14 @@ export const GuestHomePage: React.FC = () => {
 								ссылками и свежими новостями из мира IT
 							</span>
 
-							<Button className="!bg-[#fff] !text-[#151515] w-fit mt-32 xs:text-24">
-								Перейти в Telegram
-							</Button>
+							<a
+								href="https://t.me/freelancerscommunity2024"
+								target="_blank"
+							>
+								<Button className="!bg-[#fff] !text-[#151515] w-fit mt-32 xs:text-24">
+									Перейти в Telegram
+								</Button>
+							</a>
 						</div>
 
 						<div className="relative w-1/2 my-[-8rem] xs:w-full xs:mt-0 xs:h-[44rem]">

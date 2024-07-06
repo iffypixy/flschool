@@ -27,15 +27,8 @@ import {
 	useVacancies,
 } from "@entities/vacancy";
 import {ROUTER_PATHS} from "@app/router/paths";
+import {formatPrice} from "@shared/lib/format";
 
-interface FilterState {
-	position: string;
-	modalityType: ModalityType[];
-	employmentType: EmploymentType[];
-	requiredExperience: RequiredExperience[];
-	salaryFrom: number;
-	salaryTo: number;
-}
 export const VacanciesPage: React.FC = () => {
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -219,7 +212,10 @@ export const VacanciesPage: React.FC = () => {
 													<Icon.Dollar className="w-20 h-auto fill-primary" />
 
 													<span className="font-semibold text-18 text-primary xs:text-22">
-														{vacancy.salary}
+														{formatPrice(
+															vacancy.salary,
+														)}
+														₸
 													</span>
 												</div>
 											</div>
@@ -294,7 +290,7 @@ export const VacanciesPage: React.FC = () => {
 										>
 											<Button
 												color="gradient"
-												className="py-12 rounded-20 mt-40 xs:text-28"
+												className="py-12 rounded-20 mt-40 xs:text-28 w-full"
 											>
 												Откликнуться
 											</Button>

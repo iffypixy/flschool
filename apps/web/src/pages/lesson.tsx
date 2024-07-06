@@ -156,7 +156,7 @@ export const LessonPage: React.FC = () => {
 												<div className="flex items-center space-x-8">
 													{statusIcon}
 
-													<span className="text-[#434343] text-sm">
+													<span className="text-[#434343] text-sm xs:text-md">
 														{homeworkStatusToLabel(
 															lesson.homework
 																.answer.status,
