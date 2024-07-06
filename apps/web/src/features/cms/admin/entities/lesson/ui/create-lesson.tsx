@@ -122,6 +122,7 @@ export const CreateLesson: React.FC<React.PropsWithChildren> = ({children}) => {
 					</div>
 
 					<UploadZone
+						accept="video/mp4,video/x-m4v,video/*"
 						fileName={videoFile?.name}
 						onUpload={(file) => {
 							setValue("videoFile", file, {

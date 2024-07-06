@@ -16,7 +16,7 @@ export const ContentTemplate: React.FC<ContentTemplateProps> = ({
 		<div className="w-full min-h-screen flex flex-col">
 			<Header />
 
-			<main className="flex flex-col flex-1 py-64">
+			<main className="flex flex-col flex-1 py-32">
 				{showGoBack && (
 					<div className="mb-32">
 						<Container>

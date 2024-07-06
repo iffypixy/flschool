@@ -58,12 +58,11 @@ export const AlumnusPage: React.FC = () => {
 						</h3>
 
 						<div className="flex flex-col space-y-36">
-							<div className="flex items-center space-x-38 xs:space-x-0 xs:flex-col xs:space-y-16">
-								<AvatarWithFallback
-									src={alumnus?.avatar}
-									text={alumnus?.firstName[0]}
-									alt={`Выпускник ${alumnus?.firstName} ${alumnus?.lastName}`}
-									className="max-w-[28rem] w-full h-auto rounded-8 xs:max-w-full"
+							<div className="flex items-center space-x-24 xs:space-x-0 xs:flex-col xs:space-y-16">
+								<img
+									src={alumnus?.avatar!}
+									alt="Выпускник"
+									className="max-w-[28rem] w-full h-auto !rounded-8 xs:max-w-full"
 								/>
 
 								<div className="flex flex-col space-y-18 xs:items-center">

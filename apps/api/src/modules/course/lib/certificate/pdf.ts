@@ -28,7 +28,8 @@ export const generateCertificatePdf = async (name: string, course: string) => {
 	await page.setContent(html);
 
 	const pdf = await page.pdf({
-		format: "a4",
+		width: 660,
+		height: 500,
 	});
 
 	await browser.close();

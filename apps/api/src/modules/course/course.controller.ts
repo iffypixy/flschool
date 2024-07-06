@@ -9,7 +9,7 @@ import {
 	Session,
 	UseGuards,
 } from "@nestjs/common";
-import {Course} from "@prisma/client";
+import {Course, CourseType} from "@prisma/client";
 import {SessionWithData} from "express-session";
 
 import {sanitized} from "@lib/sanitized";
@@ -63,18 +63,28 @@ export class CourseController {
 		const courses = (await this.prisma.$queryRaw`
 			SELECT
 				c.*,
-				COUNT(cr.id)::integer AS reviews,
-				COUNT(l.id)::integer AS lessons
+				COALESCE(cr.reviews, 0)::integer AS reviews,
+				COALESCE(l.lessons, 0)::integer AS lessons
 			FROM
 				"Course" c
-			LEFT JOIN
-				"CourseReview" cr ON c."id" = cr."courseId"
-			LEFT JOIN
-				"Review" r ON cr."reviewId" = r."id"
-			LEFT JOIN
-				"Lesson" l ON l."courseId" = c."id"
-			GROUP BY
-				c."id"
+			LEFT JOIN (
+				SELECT
+					"courseId",
+					COUNT(*) AS reviews
+				FROM
+					"CourseReview"
+				GROUP BY
+					"courseId"
+			) cr ON c."id" = cr."courseId"
+			LEFT JOIN (
+				SELECT
+					"courseId",
+					COUNT(*) AS lessons
+				FROM
+					"Lesson"
+				GROUP BY
+					"courseId"
+			) l ON c."id" = l."courseId"
 			ORDER BY
 				reviews DESC;
 		`) as Array<
@@ -115,6 +125,7 @@ export class CourseController {
 				id,
 			},
 			include: {
+				previewFile: true,
 				reviews: {
 					include: {
 						review: true,
@@ -231,8 +242,11 @@ export class CourseController {
 
 		return {
 			course: {
-				...course,
-				price: course.price || PACK_PRICE[course.type],
+				...sanitized.course(course),
+				price:
+					course.type === CourseType.LANGUAGE
+						? course.price
+						: PACK_PRICE[course.type],
 				author: {
 					...sanitized.expert(course.author),
 					students: authorStudents,
@@ -318,6 +332,26 @@ export class CourseController {
 		const canAccess = progress >= lesson.order;
 
 		if (!canAccess) throw exception;
+
+		const student = await this.prisma.studentProgress.findFirst({
+			where: {
+				userId: session.userId,
+				courseId: course.id,
+			},
+			select: {
+				progress: true,
+			},
+		});
+
+		if (!student) {
+			await this.prisma.studentProgress.create({
+				data: {
+					userId: session.userId,
+					courseId: course.id,
+					progress: 0,
+				},
+			});
+		}
 
 		const homework = await this.prisma.lessonHomework.findFirst({
 			where: {

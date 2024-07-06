@@ -10,5 +10,5 @@ export type GetAllConsultationRequestsDto = Dto<
 
 export const getAllConsultationRequests = () =>
 	apiClient.get<GetAllConsultationRequestsDto["res"]>(
-		"/api/internal/admin/consultation-requests",
+		"/api/internal/admin/consultations",
 	);

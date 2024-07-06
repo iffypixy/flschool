@@ -10,4 +10,8 @@ export type SubmitConsultationRequestDto = Dto<
 
 export const submitConsultationRequest = (
 	req: SubmitConsultationRequestDto["req"],
-) => apiClient.post<SubmitConsultationRequestDto["res"]>("/consultations", req);
+) =>
+	apiClient.post<SubmitConsultationRequestDto["res"]>(
+		"/api/consultations",
+		req,
+	);

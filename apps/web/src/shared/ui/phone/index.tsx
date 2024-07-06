@@ -10,6 +10,7 @@ import {
 	CommandInput,
 	CommandItem,
 	CommandList,
+	Hidden,
 	Icon,
 	Input,
 	InputProps,
@@ -36,8 +37,8 @@ export const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
 				<RPNInput.default
 					ref={ref}
 					className={cx("flex", className)}
-					flagComponent={FlagComponent}
-					countrySelectComponent={CountrySelect}
+					flagComponent={() => <Hidden />}
+					countrySelectComponent={() => null}
 					inputComponent={InputComponent}
 					labels={rulocale}
 					// @ts-ignore
@@ -52,11 +53,7 @@ PhoneInput.displayName = "PhoneInput";
 
 const InputComponent = forwardRef<HTMLInputElement, InputProps>(
 	({className, ...props}, ref) => (
-		<Input
-			className={cx("rounded-e-lg rounded-s-0", className)}
-			{...props}
-			ref={ref}
-		/>
+		<Input className={cx("rounded-e-lg", className)} {...props} ref={ref} />
 	),
 );
 

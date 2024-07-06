@@ -61,7 +61,7 @@ export const Footer: React.FC = () => {
 
 								<li className="flex space-x-16 items-center">
 									<span className="w-30 h-30 flex justify-center items-center">
-										<Icon.Feature.Telephone className="w-22 h-22 fill-[#fbfbfb]" />
+										<Icon.Feature.Telephone className="w-28 h-28 fill-[#fbfbfb]" />
 									</span>
 
 									<span>+996 (500) 431 430</span>
@@ -69,7 +69,7 @@ export const Footer: React.FC = () => {
 
 								<li className="flex space-x-16 items-center">
 									<span className="w-30 h-30 flex justify-center items-center">
-										<Icon.Mail className="w-20 h-20 fill-[#fbfbfb]" />
+										<Icon.Mail className="w-24 h-24 fill-[#fbfbfb]" />
 									</span>
 
 									<span>info@freelancesch.com</span>
@@ -112,23 +112,23 @@ export const Footer: React.FC = () => {
 
 					<div className="hidden xs:flex flex-col !mt-0 space-y-34">
 						<Accordion
-							type="single"
-							className="w-full flex flex-col space-y-24"
+							type="multiple"
+							className="w-full flex flex-col space-y-24 [&_svg]:w-32 [&_svg]:h-auto"
 						>
 							<AccordionItem value="item-1">
-								<AccordionTrigger className="text-[#fbfbfb] [&>svg]:fill-[#fbfbfb]">
+								<AccordionTrigger className="text-[#fbfbfb] [&>svg]:fill-[#fbfbfb] xs:!text-28">
 									О компании
 								</AccordionTrigger>
 							</AccordionItem>
 
 							<AccordionItem value="item-2">
-								<AccordionTrigger className="text-[#fbfbfb] [&>svg]:fill-[#fbfbfb]">
+								<AccordionTrigger className="text-[#fbfbfb] [&>svg]:fill-[#fbfbfb] xs:!text-28">
 									Наши проекты
 								</AccordionTrigger>
 							</AccordionItem>
 
 							<AccordionItem value="item-3">
-								<AccordionTrigger className="text-[#fbfbfb] [&>svg]:fill-[#fbfbfb]">
+								<AccordionTrigger className="text-[#fbfbfb] [&>svg]:fill-[#fbfbfb] xs:!text-28">
 									Контакты
 								</AccordionTrigger>
 							</AccordionItem>

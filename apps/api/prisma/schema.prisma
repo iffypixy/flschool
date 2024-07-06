@@ -427,3 +427,10 @@ model ExpertReview {
 	review Review @relation(fields: [reviewId], references: [id])
 }
 
+model ConsultationRequest {
+	id String @id @default(uuid())
+	name String
+	phone String
+	createdAt DateTime @default(now())
+  	updatedAt DateTime @updatedAt
+}

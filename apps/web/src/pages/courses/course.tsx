@@ -19,10 +19,11 @@ import {
 	AvatarWithFallback,
 } from "@shared/ui";
 import {PaymentModal} from "@features/payment";
-import {useCourse} from "@entities/course";
+import {CourseType, courseTypeToLabel, useCourse} from "@entities/course";
 import {ROUTER_PATHS} from "@app/router/paths";
 import {languageToLabel} from "@entities/language";
 import {LessonsList} from "@entities/lesson";
+import {formatPrice} from "@shared/lib/format";
 
 export const CoursePage: React.FC = () => {
 	const {courseId} = useParams() as {courseId: string};
@@ -112,7 +113,7 @@ export const CoursePage: React.FC = () => {
 										)}
 									</div>
 
-									<div className="bg-[#1b998b33] w-full rounded-10 h-24">
+									<div className="bg-[#1b998b33] w-full rounded-10 h-16">
 										{!!course?.progress && (
 											<div
 												style={{
@@ -160,15 +161,26 @@ export const CoursePage: React.FC = () => {
 
 							{!course?.isEnrolled && (
 								<div className="max-w-[36rem] w-full flex flex-col space-y-24 md:max-w-full ml-32 md:ml-0">
-									<div className="flex flex-col bg-[#fff] rounded-16 shadow-even-sm p-28">
+									<div className="flex flex-col items-center bg-[#fff] rounded-16 shadow-even-sm p-28">
 										<h5 className="text-36 font-semibold xs:text-48">
-											{course?.price} ₸
+											{course?.price &&
+												formatPrice(course.price)}{" "}
+											₸
 										</h5>
+
+										<span className="text-24 text-[#03C1CD] xs:text-32">
+											за полный пакет
+										</span>
 									</div>
 
 									<PaymentModal>
 										<Button className="bg-gradient text-[#fbfbfb] shadow-primary/30 shadow-border-md py-18 w-[calc(100%-12px)] mx-auto xs:text-28">
-											Купить обучение
+											Купить{" "}
+											{course &&
+												(course.type ===
+												CourseType.LANGUAGE
+													? "курс"
+													: `набор "${courseTypeToLabel(course.type)}"`)}
 										</Button>
 									</PaymentModal>
 								</div>
@@ -191,9 +203,9 @@ export const CoursePage: React.FC = () => {
 									key={idx}
 									className="flex items-center space-x-12"
 								>
-									<Icon.CheckRounded className="size-24 text-primary" />
+									<Icon.CheckRounded className="min-w-24 max-w-24 w-24 h-24 min-h-24 max-h-24 xs:min-h-30 xs:min-w-30 xs:max-w-30 xs:max-h-30 xs:w-30 xs:h-30 text-primary" />
 
-									<p className="font-medium text-20 xs:text-30">
+									<p className="font-medium text-18 xs:text-24">
 										{a}
 									</p>
 								</div>

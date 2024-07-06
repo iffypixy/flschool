@@ -7,6 +7,7 @@ import {
 	AdminVacancyController,
 	AdminAlumnusController,
 	AdminUserController,
+	AdminConsultationController,
 } from "./controllers";
 
 @Module({
@@ -17,6 +18,7 @@ import {
 		AdminController,
 		AdminAlumnusController,
 		AdminUserController,
+		AdminConsultationController,
 	],
 })
 export class InternalAdminModule {}

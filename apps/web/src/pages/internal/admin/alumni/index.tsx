@@ -23,14 +23,14 @@ export const InternalAdminAlumniPage: React.FC = () => {
 						to={ROUTER_PATHS.INTERNAL.ADMIN.ALUMNUS.filled(
 							alumnus.id,
 						)}
-						className="max-w-1/3 p-28 md:w-1/2 sm:w-full"
+						className="w-1/4 p-28 md:w-1/2 sm:w-full"
 					>
 						<div className="w-full flex flex-col space-y-10">
 							<AvatarWithFallback
 								src={alumnus.avatar}
 								text={alumnus.firstName[0]}
 								alt="Выпускник"
-								className="!size-64 rounded-8"
+								className="w-full h-auto rounded-8"
 							/>
 
 							<div className="flex flex-col space-y-8">

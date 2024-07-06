@@ -117,6 +117,7 @@ export const InternalAdminCreateAlumnusPage: React.FC = () => {
 				className="flex flex-col space-y-28"
 			>
 				<Upload
+					accept="image/png, image/gif, image/jpeg"
 					onUpload={(file) => {
 						uploadFile({file}).then(({fileId, url}) => {
 							setValue(
@@ -229,6 +230,7 @@ export const InternalAdminCreateAlumnusPage: React.FC = () => {
 					<Label>Заработок</Label>
 
 					<UploadZone
+						accept="image/png, image/gif, image/jpeg"
 						fileName={income?.name}
 						onUpload={(file) => {
 							setValue("income", file, {
@@ -244,6 +246,7 @@ export const InternalAdminCreateAlumnusPage: React.FC = () => {
 					<Label>Сертификат</Label>
 
 					<UploadZone
+						accept="image/png, image/gif, image/jpeg"
 						fileName={certificate?.name}
 						onUpload={(file) => {
 							setValue("certificate", file, {
@@ -259,6 +262,7 @@ export const InternalAdminCreateAlumnusPage: React.FC = () => {
 					<Label>Видео-отзыв</Label>
 
 					<UploadZone
+						accept="video/mp4,video/x-m4v,video/*"
 						fileName={review?.name}
 						onUpload={(file) => {
 							setValue("review", file, {

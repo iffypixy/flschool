@@ -93,6 +93,7 @@ export const InternalAdminExpertPage: React.FC = () => {
 				className="flex flex-col space-y-28"
 			>
 				<Upload
+					accept="image/png, image/gif, image/jpeg"
 					onUpload={(file) => {
 						uploadFile({file}).then(({url, fileId}) => {
 							setValue(

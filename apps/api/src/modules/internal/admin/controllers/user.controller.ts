@@ -34,7 +34,10 @@ export class AdminUserController {
 		});
 
 		return {
-			users: users.map(sanitized.user),
+			users: users.map((u) => ({
+				...sanitized.user(u),
+				email: u.email,
+			})),
 		};
 	}
 

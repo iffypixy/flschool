@@ -49,7 +49,7 @@ export const EducationCoursesPage: React.FC = () => {
 							</h3>
 
 							<PaymentModal>
-								<HighlightButton className="px-44 sm:fixed sm:left-1/2 sm:bottom-[5%] xs:py-20 sm:w-[80%] sm:-translate-x-1/2 sm:-translate-y-[15%] sm:z-10 sm:text-24 sm:py-28 ring-1">
+								<HighlightButton className="px-16 !py-14 sm:fixed sm:left-1/2 sm:bottom-[5%] xs:py-20 sm:w-[75%] sm:-translate-x-1/2 sm:-translate-y-[15%] sm:z-10 sm:text-24 sm:py-28 ring-4">
 									Купить набор "Образование"
 								</HighlightButton>
 							</PaymentModal>
@@ -57,7 +57,7 @@ export const EducationCoursesPage: React.FC = () => {
 
 						<div className="flex flex-col sm:space-y-16">
 							<span className="text-20 xs:text-24 text-[#909090] hidden sm:inline-flex">
-								24 результата
+								результатов: {courses?.length}
 							</span>
 
 							<div className="flex flex-wrap -m-16 sm:flex-nowrap sm:flex-col">

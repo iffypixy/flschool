@@ -1,4 +1,5 @@
 import {Link} from "wouter";
+import {useState} from "react";
 
 import {TelegramAd} from "@features/ad";
 import {
@@ -19,6 +20,8 @@ import {ROUTER_PATHS} from "@app/router/paths";
 
 export const ExpertsPage: React.FC = () => {
 	const {experts} = useExperts();
+
+	const [search, setSearch] = useState("");
 
 	return (
 		<ContentTemplate className="flex flex-col space-y-40">
@@ -53,6 +56,10 @@ export const ExpertsPage: React.FC = () => {
 							<Input
 								placeholder="Поиск по экспертам"
 								className="!rounded-24 py-16 px-28 !bg-[#fff]"
+								value={search}
+								onChange={(event) => {
+									setSearch(event.currentTarget.value);
+								}}
 							/>
 
 							<Icon.Magnifier className="absolute right-28 top-1/2 -translate-y-1/2 w-24 h-auto fill-[#b1b1b1]" />
@@ -71,54 +78,73 @@ export const ExpertsPage: React.FC = () => {
 				<Container>
 					<div className="flex space-x-44 md:flex-col md:space-x-0 md:space-y-44">
 						<div className="flex flex-1 flex-col space-y-24">
-							{experts?.map((expert) => (
-								<Link
-									key={expert.id}
-									to={`/experts/${expert.id}`}
-									className="flex bg-[#fff] flex-col shadow-even-sm space-y-24 rounded-18 p-24"
-								>
-									<div className="flex items-center space-x-24">
-										<AvatarWithFallback
-											src={expert.avatar}
-											text={expert.firstName[0]}
-										/>
+							{experts
+								?.filter((e) => {
+									const lcsearch = search.toLowerCase();
 
-										<div className="flex flex-col space-y-2 xs:space-y-4">
-											<h6 className="text-28 xs:text-30 font-medium leading-[2.4rem] text-[#434343]">
-												{expert.firstName}{" "}
-												{expert.lastName}
-											</h6>
+									if (lcsearch) {
+										return (
+											e.firstName
+												.toLowerCase()
+												.startsWith(lcsearch) ||
+											e.lastName
+												.toLowerCase()
+												.startsWith(
+													search.toLowerCase(),
+												)
+										);
+									} else return true;
+								})
+								.map((expert) => (
+									<Link
+										key={expert.id}
+										to={ROUTER_PATHS.EXPERT.filled(
+											expert.id,
+										)}
+										className="flex bg-[#fff] flex-col shadow-even-sm space-y-24 rounded-18 p-24"
+									>
+										<div className="flex items-center space-x-24">
+											<AvatarWithFallback
+												src={expert.avatar}
+												text={expert.firstName[0]}
+											/>
+
+											<div className="flex flex-col space-y-2 xs:space-y-4">
+												<h6 className="text-28 xs:text-30 font-medium leading-[2.4rem] text-[#434343]">
+													{expert.firstName}{" "}
+													{expert.lastName}
+												</h6>
+											</div>
 										</div>
-									</div>
 
-									<div className="flex items-center space-x-16 text-14">
-										<div className="flex items-center space-x-8 xs:space-x-6">
-											<Icon.StarOutlined className="size-24 text-[#03c1cd]" />
+										<div className="flex items-center space-x-16 text-14">
+											<div className="flex items-center space-x-8 xs:space-x-6">
+												<Icon.StarOutlined className="size-24 text-[#03c1cd]" />
 
-											<span className="text-[#434343] xs:text-18">
-												рейтинг:{" "}
-												{expert.rating.toFixed(2)}
-											</span>
+												<span className="text-[#434343] xs:text-18">
+													рейтинг:{" "}
+													{expert.rating.toFixed(2)}
+												</span>
+											</div>
+
+											<div className="flex items-center space-x-8 xs:space-x-6">
+												<Icon.Person className="size-24 text-[#03c1cd]" />
+
+												<span className="text-[#434343] xs:text-18">
+													студентов: {expert.students}
+												</span>
+											</div>
+
+											<div className="flex items-center space-x-8 xs:space-x-6">
+												<Icon.Video className="size-24 text-[#03c1cd]" />
+
+												<span className="text-[#434343] xs:text-18">
+													курсов: {expert.courses}
+												</span>
+											</div>
 										</div>
-
-										<div className="flex items-center space-x-8 xs:space-x-6">
-											<Icon.Person className="size-24 text-[#03c1cd]" />
-
-											<span className="text-[#434343] xs:text-18">
-												студентов: {expert.students}
-											</span>
-										</div>
-
-										<div className="flex items-center space-x-8 xs:space-x-6">
-											<Icon.Video className="size-24 text-[#03c1cd]" />
-
-											<span className="text-[#434343] xs:text-18">
-												курсов: {expert.courses}
-											</span>
-										</div>
-									</div>
-								</Link>
-							))}
+									</Link>
+								))}
 						</div>
 
 						<TelegramAd />

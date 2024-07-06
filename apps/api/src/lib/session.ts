@@ -17,6 +17,8 @@ export const session = () => {
 		cookie: {
 			maxAge: MONTH,
 			httpOnly: true,
+			sameSite: "none",
+			secure: true,
 		},
 	});
 };

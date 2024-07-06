@@ -307,7 +307,6 @@ export const InternalAdminCoursePage: React.FC = () => {
 											type="number"
 											min={0}
 											placeholder="Введите цену курса"
-											{...register("price")}
 										/>
 									</div>
 								</div>
@@ -376,6 +375,7 @@ export const InternalAdminCoursePage: React.FC = () => {
 							<div className="flex flex-col space-y-24">
 								<UploadZone
 									key={preview?.name}
+									accept="video/mp4,video/x-m4v,video/*"
 									fileName={preview?.name}
 									onUpload={(file) =>
 										setValue("preview", file, {

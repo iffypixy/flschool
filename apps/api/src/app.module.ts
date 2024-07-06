@@ -15,6 +15,7 @@ import {UploadModule} from "@modules/upload";
 import {VacancyModule} from "@modules/vacancy";
 import {InternalAdminModule} from "@modules/internal/admin";
 import {InternalExpertModule} from "@modules/internal/expert";
+import {ConsultationModule} from "@modules/consultation";
 
 @Module({
 	imports: [
@@ -34,6 +35,7 @@ import {InternalExpertModule} from "@modules/internal/expert";
 		PromocodeModule,
 		UploadModule,
 		VacancyModule,
+		ConsultationModule,
 		InternalAdminModule,
 		InternalExpertModule,
 	],

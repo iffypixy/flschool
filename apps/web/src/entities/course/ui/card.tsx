@@ -20,7 +20,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
 	duration,
 }) => {
 	return (
-		<div className="w-full flex flex-col space-y-16 bg-[#fff] text-[#434343] shadow-even-sm rounded-24 relative p-24">
+		<div className="w-full h-[24rem] xs:h-[28rem] overflow-hidden flex flex-col space-y-16 bg-[#fff] text-[#434343] shadow-even-sm rounded-24 relative p-24">
 			<div className="flex items-center space-x-8 xs:text-20">
 				{type === "FL_TEENS" && (
 					<span className="bg-gradient text-[#fbfbfb] px-12 py-6 rounded-8">
@@ -37,14 +37,16 @@ export const CourseCard: React.FC<CourseCardProps> = ({
 				</span>
 			</div>
 
-			<div className="flex flex-col space-y-8">
-				<h5 className=" font-bold text-28 xs:text-34 text-inherit">
-					{name}
-				</h5>
+			<div className="flex flex-col justify-between flex-1">
+				<div className="flex flex-col">
+					<h5 className=" font-bold text-28 xs:text-34 text-inherit">
+						{name}
+					</h5>
 
-				<p className=" font-normal text-16 xs:text-20 text-inherit">
-					{hook}
-				</p>
+					<p className=" font-normal text-16 xs:text-20 text-inherit block break-words overflow-hidden max-h-[3.6em] leading-[1.8em]">
+						{hook}
+					</p>
+				</div>
 
 				<div className="flex items-center space-x-8">
 					<div className="flex items-center space-x-8">

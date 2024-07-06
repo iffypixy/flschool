@@ -16,6 +16,7 @@ import {
 } from "@shared/ui";
 import {useLanguageCourses} from "@entities/course";
 import {ROUTER_PATHS} from "@app/router/paths";
+import {formatPrice} from "@shared/lib/format";
 
 export const LanguageCoursesPage: React.FC = () => {
 	const {courses} = useLanguageCourses();
@@ -75,13 +76,19 @@ export const LanguageCoursesPage: React.FC = () => {
 				<Container>
 					<div className="flex flex-wrap -m-16 sm:flex-nowrap sm:flex-col">
 						{courses
-							?.filter((c) =>
-								search ? c.name.startsWith(search) : true,
-							)
+							?.filter((c) => {
+								const lcsearch = search.toLowerCase();
+
+								if (lcsearch)
+									return c.name
+										.toLowerCase()
+										.startsWith(lcsearch);
+								else true;
+							})
 							.map((course) => (
 								<Link
 									key={course.id}
-									to={`/courses/${course.id}`}
+									to={ROUTER_PATHS.COURSE.filled(course.id)}
 									className="w-1/2 p-16 sm:w-full"
 								>
 									<div className="w-full flex flex-col space-y-24 bg-gradient rounded-24 relative p-30">
@@ -97,7 +104,7 @@ export const LanguageCoursesPage: React.FC = () => {
 															key={idx}
 															className="p-4 text-14 xs:text-18"
 														>
-															<div className="bg-[#d2ecf6] py-4 px-8 rounded-8 text-[#151515]">
+															<div className="bg-[#d2ecf6] py-4 px-8 rounded-14 text-[#151515]">
 																{a}
 															</div>
 														</div>
@@ -109,7 +116,11 @@ export const LanguageCoursesPage: React.FC = () => {
 												<Icon.Dollar className="fill-[#fbfbfb] size-28 xs:size-36" />
 
 												<span className="text-[#FCC648] font-bold text-24 xs:text-28">
-													{course.price} KZT
+													{course.price &&
+														formatPrice(
+															course.price,
+														)}{" "}
+													₸
 												</span>
 											</div>
 										</div>

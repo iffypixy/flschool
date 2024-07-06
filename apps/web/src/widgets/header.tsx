@@ -16,6 +16,8 @@ import {
 	Hidden,
 	AvatarWithFallback,
 	Separator,
+	SheetClose,
+	Icon,
 } from "@shared/ui";
 import {useViewer, viewerQueryKeys} from "@entities/viewer";
 import {useLogout} from "@features/auth";
@@ -125,101 +127,157 @@ export const Header: React.FC = () => {
 
 							<div className="flex flex-col space-y-24 text-[#434343]">
 								<div className="flex items-center justify-between">
-									<SelectLanguageModal />
-
 									<Branch if={isAuthenticated}>
 										<Link
 											to="/profile"
-											className="flex items-center space-x-24"
+											className="flex items-center space-x-18"
 										>
 											<AvatarWithFallback
 												src={viewer?.avatar}
 												alt="Аватар"
 												text={viewer?.firstName[0]}
+												className="!size-60"
 											/>
 
-											<span className="text-32 font-bold underline">
+											<span className="text-30 font-medium">
 												{viewer?.firstName}
 											</span>
 										</Link>
 
-										<Link to="/sign-in">
-											<Button className="sm:text-24 sm:px-38">
-												Войти
-											</Button>
+										<Link
+											to="/sign-in"
+											className="text-primary underline underline-offset-2 text-28"
+										>
+											Войти
 										</Link>
 									</Branch>
+
+									<div className="flex items-center space-x-18">
+										{/* <SelectLanguageModal /> */}
+
+										<SheetClose>
+											<Icon.Cross className="fill-[#434343] w-18 h-auto" />
+										</SheetClose>
+									</div>
 								</div>
 
 								<Separator />
 
 								<nav>
-									<ul className="flex flex-col space-y-28 font-medium text-24">
+									<ul className="flex flex-col space-y-24 font-normal text-22">
+										{isAuthenticated ? (
+											<>
+												<li>
+													<Link
+														to={
+															ROUTER_PATHS.PROFILE
+														}
+														className="flex items-center gap-16 text-[#61677F]"
+													>
+														<Icon.Nav.Person className="w-24 h-auto" />
+
+														<span>Профиль</span>
+													</Link>
+												</li>
+
+												<li>
+													<Link
+														to={ROUTER_PATHS.HOME}
+														className="flex items-center gap-16 text-[#61677F]"
+													>
+														<Icon.Nav.Courses className="w-24 h-auto" />
+
+														<span>Мои курсы</span>
+													</Link>
+												</li>
+											</>
+										) : (
+											<li>
+												<Link
+													to={ROUTER_PATHS.HOME}
+													className="flex items-center gap-16 text-[#61677F]"
+												>
+													<Icon.Nav.Person className="w-24 h-auto" />
+
+													<span>Главная</span>
+												</Link>
+											</li>
+										)}
+
 										{[
 											{
+												icon: (
+													<Icon.Nav.FlTeens className="w-26 h-auto text-[#434343]" />
+												),
 												path: ROUTER_PATHS.FREELANCE_TEENS_COURSES,
-												label: 'Курсы "Freelance teens"',
+												label: "Freelance teens",
 											},
 											{
+												icon: (
+													<Icon.Nav.Education className="w-26 h-auto text-[#434343]" />
+												),
 												path: ROUTER_PATHS.EDUCATION_COURSES,
-												label: 'Курсы "Образование"',
+												label: "Образование",
 											},
 											{
+												icon: (
+													<Icon.Nav.Language className="w-26 h-auto text-[#434343]" />
+												),
 												path: ROUTER_PATHS.LANGUAGE_COURSES,
-												label: 'Курсы "Языки"',
+												label: "Языки",
 											},
 											{
+												icon: (
+													<Icon.Nav.Expert className="w-26 h-auto text-[#434343]" />
+												),
 												path: ROUTER_PATHS.EXPERTS,
 												label: "Эксперты",
 											},
 											{
+												icon: (
+													<Icon.Admin.Alumni className="w-26 h-auto text-[#434343]" />
+												),
 												path: ROUTER_PATHS.ALUMNI,
 												label: "Выпускники",
 											},
 											{
+												icon: (
+													<Icon.Nav.Vacancy className="w-26 h-auto text-[#434343]" />
+												),
 												path: ROUTER_PATHS.VACANCIES,
 												label: "Вакансии",
 											},
-										].map(({path, label}) => (
-											<li
-												key={path}
-												className="underline"
-											>
-												<Link to={path}>{label}</Link>
+										].map(({icon, path, label}) => (
+											<li key={path}>
+												<Link
+													to={path}
+													className="flex items-center gap-16"
+												>
+													{icon}
+
+													<span>{label}</span>
+												</Link>
 											</li>
 										))}
+
+										{isAuthenticated && (
+											<li>
+												<button
+													onClick={() => {
+														logout();
+													}}
+													className="flex items-center gap-16"
+												>
+													<Icon.Nav.Exit className="w-26 h-auto text-primary" />
+
+													<span className="text-primary">
+														Выход
+													</span>
+												</button>
+											</li>
+										)}
 									</ul>
 								</nav>
-
-								<Branch if={isAuthenticated}>
-									<>
-										<div className="w-full h-[1px] bg-[#434343]" />
-
-										<button
-											onClick={() => {
-												logout().then(() => {
-													queryClient.setQueryData<
-														MaybeObject<
-															GetViewerDto["res"]
-														>
-													>(
-														viewerQueryKeys[
-															"get-viewer"
-														].queryKey,
-														{
-															credentials: null,
-														},
-													);
-												});
-											}}
-											className="w-fit"
-										>
-											<span className="underline underline-offset-4 text-28 font-medium">
-												Выйти из аккаунта
-											</span>
-										</button>
-									</>
-								</Branch>
 							</div>
 						</SheetContent>
 					</Sheet>

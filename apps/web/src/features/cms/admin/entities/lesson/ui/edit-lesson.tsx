@@ -128,6 +128,7 @@ export const EditLesson: React.FC<EditLessonProps> = ({lesson, children}) => {
 					</div>
 
 					<UploadZone
+						accept="video/mp4,video/x-m4v,video/*"
 						fileName={video?.name}
 						onUpload={(file) => {
 							setValue("video", file, {

@@ -292,6 +292,7 @@ export const InternalAdminCreateCoursePage: React.FC = () => {
 
 					<div className="flex flex-col space-y-24">
 						<UploadZone
+							accept="video/mp4,video/x-m4v,video/*"
 							onUpload={(file) =>
 								setValue("preview", file, {
 									shouldValidate: true,

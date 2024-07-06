@@ -27,8 +27,10 @@ import Blocked from "./blocked.svg?react";
 import CheckRounded from "./check.rounded.svg?react";
 import Clip from "./clip.svg?react";
 import Clock from "./clock.svg?react";
+import {Nav} from "./nav";
 
 export const Icon = {
+	Nav,
 	Clock,
 	Clip,
 	Blocked,

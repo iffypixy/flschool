@@ -1,17 +1,16 @@
 import {useMutation} from "@tanstack/react-query";
 
-import {queryClient} from "@app/query-client";
+import {invalidateCourseQueries} from "@features/cms/admin";
 
 import {editLesson} from "../api";
-import {lessonQueryKeys} from "./lesson.queries";
+import {invalidateLessonQueries} from "./lesson.queries";
 
 export const useEditLesson = () => {
 	const {mutateAsync, ...mutation} = useMutation({
 		mutationFn: editLesson,
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: lessonQueryKeys._def,
-			});
+			invalidateCourseQueries();
+			invalidateLessonQueries();
 		},
 	});
 

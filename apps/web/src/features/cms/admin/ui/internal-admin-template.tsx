@@ -30,12 +30,17 @@ export const AdminTemplate: React.FC<AdminTemplateProps> = ({
 				<div className="flex flex-col space-y-12">
 					{[
 						{
+							label: "Мой профиль",
+							path: ROUTER_PATHS.PROFILE,
+							Icon: Icon.Person,
+						},
+						{
 							label: "Все пользователи",
 							path: ROUTER_PATHS.INTERNAL.ADMIN.USERS,
 							Icon: Icon.Admin.Users,
 						},
 						{
-							label: "Заявки",
+							label: "Заявки на консультацию",
 							path: ROUTER_PATHS.INTERNAL.ADMIN
 								.CONSULTATION_REQUESTS,
 							Icon: Icon.Admin.Requests,

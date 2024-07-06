@@ -18,6 +18,8 @@ import {
 	PhoneInput,
 	Loader,
 	Swiper,
+	Spinner,
+	AccordionContent,
 } from "@shared/ui";
 import {Branch} from "@shared/lib/branch";
 import {CourseTag, useCourseNames} from "@entities/course";
@@ -30,6 +32,7 @@ import banner1 from "@shared/assets/banner-1.png";
 import banner2 from "@shared/assets/banner-2.png";
 import hero from "@shared/assets/hero.png";
 import {ROUTER_PATHS} from "@app/router/paths";
+import {useSubmitConsultationRequest} from "@entities/consultation-request";
 
 export const GuestHomePage: React.FC = () => {
 	const {courses, isFetching: areCourseNamesFetching} = useCourseNames();
@@ -40,19 +43,20 @@ export const GuestHomePage: React.FC = () => {
 				<Container>
 					<div className="flex space-x-12 justify-between xs:flex-wrap xs:space-x-0">
 						<div className="flex flex-col w-[50%] text-[#434343] xs:w-full relative">
-							<h1 className="font-bold text-[6.4rem] xs:text-[5rem] [#fbfbfb] whitespace-pre-line leading-[7.6rem] xs:leading-[5rem]">
+							<h1 className="font-bold text-[6.4rem] xs:text-[5rem] [#fbfbfb] whitespace-pre-line leading-[7.2rem] xs:leading-[5rem]">
 								Онлайн обучение{"\n"}
-								без границ
+								<span className="text-primary">#без</span>{" "}
+								границ
 							</h1>
 
-							<span className="text-[2rem] xs:text-[2.6rem] max-w-[calc(100%-20rem)] text-[#434343] mt-24">
+							<span className="text-24 xs:text-[2.6rem] max-w-[calc(100%-20rem)] text-[#434343] mt-24">
 								Выбери онлайн-курс и прокачай свои навыки не
 								выходя из дома
 							</span>
 
 							<div className="flex space-x-12 mt-44">
 								<Link to="/education">
-									<Button className="!bg-[#1EA1D4] xs:text-22">
+									<Button className="xs:text-22 !px-24 !py-10">
 										Начать сейчас
 									</Button>
 								</Link>
@@ -65,7 +69,15 @@ export const GuestHomePage: React.FC = () => {
 							/>
 						</div>
 
-						<ConsultationForm1 />
+						<div className="flex">
+							<ConsultationForm1 />
+
+							<img
+								src={hero}
+								alt="Hero-картинка"
+								className="max-w-[29rem] h-auto inline-flex object-contain z-10 -mt-80 -ml-10 xs:hidden"
+							/>
+						</div>
 					</div>
 				</Container>
 			</section>
@@ -73,7 +85,7 @@ export const GuestHomePage: React.FC = () => {
 			<section className="my-[12rem] xs:my-[6rem]">
 				<Container>
 					<div className="flex flex-col items-center">
-						<h3 className="font-bold text-32 text-[#434343] mb-48">
+						<h3 className="font-semibold text-36 text-[#434343] mb-40">
 							Получи <span className="text-primary">#все</span>{" "}
 							курсы разом
 						</h3>
@@ -102,8 +114,8 @@ export const GuestHomePage: React.FC = () => {
 			<section className="bg-primary py-[8rem] my-[6rem] xs:my-[3rem]">
 				<Container>
 					<div className="flex justify-between xs:flex-col">
-						<div className="flex flex-col w-[45%] text-[#fbfbfb] space-y-8 xs:w-full">
-							<h5 className="font-bold text-[4rem]">
+						<div className="flex flex-col w-[45%] text-[#fbfbfb] xs:w-full">
+							<h5 className="font-bold text-[4rem] mb-8">
 								Telegram-канал
 							</h5>
 
@@ -112,6 +124,10 @@ export const GuestHomePage: React.FC = () => {
 								получайте ежедневные обновления с полезными
 								ссылками и свежими новостями из мира IT
 							</span>
+
+							<Button className="!bg-[#fff] !text-[#151515] w-fit mt-32 xs:text-24">
+								Перейти в Telegram
+							</Button>
 						</div>
 
 						<div className="relative w-1/2 my-[-8rem] xs:w-full xs:mt-0 xs:h-[44rem]">
@@ -147,7 +163,7 @@ export const GuestHomePage: React.FC = () => {
 				<Container>
 					<div className="flex flex-col space-y-8">
 						<h3 className="text-[#434343] font-bold text-[3.8rem]">
-							<span className="relative text-[#fbfbfb] before:bg-gradient before:absolute before:w-full before:h-full before:rounded-xl before:-rotate-[1deg] before:left-0 before:top-0 before:-z-10">
+							<span className="relative text-[#fbfbfb] before:bg-gradient before:absolute before:w-full before:h-full p-10 before:rounded-xl before:-rotate-[3deg] before:left-0 before:top-0 before:-z-10">
 								Почему стоит
 							</span>{" "}
 							начать с нами?
@@ -225,6 +241,7 @@ export const GuestHomePage: React.FC = () => {
 						</h3>
 
 						<Swiper
+							showArrows
 							slidesToShow={2}
 							infinite
 							dots
@@ -251,14 +268,14 @@ export const GuestHomePage: React.FC = () => {
 							].map((banner, idx) => (
 								<div key={idx} className="w-1/2 p-16 sm:w-full">
 									<div className="flex items-center justify-between bg-gradient h-[32rem] md:h-[26rem] rounded-[3.2rem] p-28">
-										<span className="text-22 font-medium text-[#fff] md:text-18 sm:text-26 xs:text-20">
+										<span className="text-24 font-medium text-[#fff] md:text-18 sm:text-26 xs:text-24">
 											{banner.label}
 										</span>
 
 										<img
 											src={banner.img}
-											alt="Баннер 1"
-											className="max-w-[24rem] w-full h-auto md:max-w-[20rem] sm:max-w-[22rem] xs:max-w-[18rem]"
+											alt="Баннер"
+											className="max-w-[28rem] w-full h-auto md:max-w-[20rem] sm:max-w-[22rem] xs:max-w-[18rem]"
 										/>
 									</div>
 								</div>
@@ -283,13 +300,29 @@ export const GuestHomePage: React.FC = () => {
 						<div>
 							<Accordion
 								type="multiple"
-								className="flex flex-col space-y-26"
+								className="flex flex-col space-y-26 [&_svg]:!fill-primary [&_svg]:w-28 [&_svg]:h-auto"
 							>
 								<AccordionItem value="item-1">
 									<AccordionTrigger>
 										Могу ли я гарантировать себе
 										трудоустройство после окончания курсов?
 									</AccordionTrigger>
+
+									<AccordionContent>
+										<p className="text-18 xs:text-20">
+											Хотя мы предоставляем все
+											необходимые инструменты и знания для
+											достижения успеха в IT-индустрии,
+											трудоустройство зависит от многих
+											факторов, включая вашу личную
+											инициативу, усердие и
+											профессиональное развитие. Мы не
+											можем гарантировать непосредственное
+											трудоустройство, но мы обязуемся
+											поддерживать вас на каждом этапе
+											вашего обучения.
+										</p>
+									</AccordionContent>
 								</AccordionItem>
 
 								<AccordionItem value="item-2">
@@ -346,19 +379,32 @@ const schema = z.object({
 });
 
 const ConsultationForm1: React.FC = () => {
-	const {register, control, handleSubmit, formState} = useForm({
+	const {register, control, handleSubmit, formState} = useForm<{
+		name: string;
+		phone: string;
+	}>({
 		resolver: zodResolver(schema),
 	});
+
+	const {submitConsultationRequest} = useSubmitConsultationRequest();
 
 	return (
 		<div className="w-[38rem] rounded-18 p-30 xs:p-40 bg-gradient h-fit space-y-8 xs:w-full xs:mt-64">
 			<form
-				onSubmit={handleSubmit((form) => {})}
+				onSubmit={handleSubmit((form) => {
+					return submitConsultationRequest({
+						name: form.name,
+						phone: form.phone,
+					});
+				})}
 				className="flex flex-col space-y-30 mb-2"
 			>
 				<div className="flex flex-col space-y-24">
 					<div className="flex flex-col space-y-8">
-						<Label className="text-[#fff] xs:text-22">
+						<Label
+							htmlFor="name"
+							className="text-[#fff] xs:text-22"
+						>
 							Ваше имя
 						</Label>
 
@@ -366,13 +412,17 @@ const ConsultationForm1: React.FC = () => {
 							{...register("name", {
 								required: true,
 							})}
+							id="name"
 							placeholder="Введите ваше имя"
 							className="text-[#fff] placeholder:text-[#fff]/60 xs:text-22"
 						/>
 					</div>
 
 					<div className="flex flex-col space-y-8">
-						<Label className="text-[#fff]  xs:text-22">
+						<Label
+							htmlFor="phone"
+							className="text-[#fff]  xs:text-22"
+						>
 							Номер телефона
 						</Label>
 
@@ -381,11 +431,12 @@ const ConsultationForm1: React.FC = () => {
 							control={control}
 							render={({field}) => (
 								<PhoneInput
+									id="phone"
 									{...field}
 									onChange={(value) => field.onChange(value)}
 									defaultCountry="KZ"
 									countries={["KZ"]}
-									placeholder="+7 xxx xxx xxxx"
+									placeholder="+7"
 									className="[&>input]:text-[#fff] [&>input]:placeholder:text-[#fff]/60 [&>input]:xs:text-22 [&>button>span>svg]:border [&>button>span>svg]:border-[#000]"
 								/>
 							)}
@@ -394,14 +445,22 @@ const ConsultationForm1: React.FC = () => {
 				</div>
 
 				<GradientButton
-					disabled={!formState.isValid || formState.isSubmitting}
+					disabled={
+						!formState.isValid ||
+						formState.isSubmitting ||
+						formState.isSubmitted
+					}
 					className="xs:text-26"
 				>
-					<Branch if={formState.isSubmitting}>
-						<Loader className="mx-auto" />
+					{formState.isSubmitted ? (
+						"Отправлено"
+					) : (
+						<Branch if={formState.isSubmitting}>
+							<Spinner className="mx-auto" />
 
-						<>Подобрать обучение</>
-					</Branch>
+							<>Подобрать обучение</>
+						</Branch>
+					)}
 				</GradientButton>
 			</form>
 
@@ -414,19 +473,29 @@ const ConsultationForm1: React.FC = () => {
 };
 
 const ConsultationForm2: React.FC = () => {
-	const {register, control, handleSubmit, formState} = useForm({
+	const {register, control, handleSubmit, formState} = useForm<{
+		name: string;
+		phone: string;
+	}>({
 		resolver: zodResolver(schema),
 	});
+
+	const {submitConsultationRequest} = useSubmitConsultationRequest();
 
 	return (
 		<div className="flex flex-col space-y-12">
 			<form
-				onSubmit={handleSubmit((form) => {})}
+				onSubmit={handleSubmit((form) => {
+					return submitConsultationRequest({
+						name: form.name,
+						phone: form.phone,
+					});
+				})}
 				className="flex space-x-16 xs:flex-col xs:space-x-0 xs:space-y-24"
 			>
 				<Input
 					placeholder="Имя*"
-					className="!w-1/3 xs:!w-full text-[#fff] placeholder:text-[#fff]/60 xs:text-22"
+					className="!w-1/3 xs:!w-full text-[#fff] placeholder:text-[#fff]/60 xs:text-22 !rounded-20 !px-28 !py-18"
 					{...register("name")}
 				/>
 
@@ -438,22 +507,30 @@ const ConsultationForm2: React.FC = () => {
 							{...field}
 							defaultCountry="KZ"
 							countries={["KZ"]}
-							placeholder="+7 xxx xxx xxxx"
-							className="w-1/3 xs:w-full [&>input]:text-[#fff] [&>input]:placeholder:text-[#fff]/60 [&>input]:xs:text-22 [&>button>span>svg]:border [&>button>span>svg]:border-[#000]"
+							placeholder="+7"
+							className="w-1/3 xs:w-full [&>input]:text-[#fff] [&>input]:placeholder:text-[#fff]/60 [&>input]:xs:text-22 [&>button>span>svg]:border [&>button>span>svg]:border-[#000] [&>input]:!rounded-20 [&>input]:!px-28 [&>input]:!py-18"
 							onChange={(value) => field.onChange(value)}
 						/>
 					)}
 				/>
 
 				<GradientButton
-					disabled={!formState.isValid || formState.isSubmitting}
-					className="w-1/3 xs:w-full py-14 text-24 xs:text-26"
+					disabled={
+						!formState.isValid ||
+						formState.isSubmitting ||
+						formState.isSubmitted
+					}
+					className="w-1/3 xs:w-full py-14 text-24 xs:text-26 !rounded-20"
 				>
-					<Branch if={formState.isSubmitting}>
-						<Loader className="mx-auto" />
+					{formState.isSubmitted ? (
+						"Отправлено"
+					) : (
+						<Branch if={formState.isSubmitting}>
+							<Loader className="mx-auto" />
 
-						<>Оставить заявку</>
-					</Branch>
+							<>Оставить заявку</>
+						</Branch>
+					)}
 				</GradientButton>
 			</form>
 
