@@ -1,24 +1,27 @@
 import {Module} from "@nestjs/common";
 
+import {PromocodeModule} from "@modules/promocode";
+
 import {
-	AdminController,
-	AdminCourseController,
-	AdminExpertController,
-	AdminVacancyController,
-	AdminAlumnusController,
-	AdminUserController,
-	AdminConsultationController,
+    AdminController,
+    AdminCourseController,
+    AdminExpertController,
+    AdminVacancyController,
+    AdminAlumnusController,
+    AdminUserController,
+    AdminConsultationController,
 } from "./controllers";
 
 @Module({
-	controllers: [
-		AdminCourseController,
-		AdminExpertController,
-		AdminVacancyController,
-		AdminController,
-		AdminAlumnusController,
-		AdminUserController,
-		AdminConsultationController,
-	],
+    imports: [PromocodeModule],
+    controllers: [
+        AdminCourseController,
+        AdminExpertController,
+        AdminVacancyController,
+        AdminController,
+        AdminAlumnusController,
+        AdminUserController,
+        AdminConsultationController,
+    ],
 })
 export class InternalAdminModule {}

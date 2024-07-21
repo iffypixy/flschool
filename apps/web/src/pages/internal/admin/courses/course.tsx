@@ -5,39 +5,41 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import * as RXTabs from "@radix-ui/react-tabs";
 import {useLocation, useParams} from "wouter";
 import {useDebounce} from "use-debounce";
+import toast from "react-hot-toast";
+import {useState} from "react";
 
 import {
-	AdminTemplate,
-	CreateLesson,
-	EditLesson,
-	HomeworkForm,
-	useCourse,
-	useDeleteCourse,
-	useDeleteLesson,
-	useEditCourse,
-	useSearchExperts,
+    AdminTemplate,
+    CreateLesson,
+    EditLesson,
+    HomeworkForm,
+    useCourse,
+    useDeleteCourse,
+    useDeleteLesson,
+    useEditCourse,
+    useSearchExperts,
 } from "@features/cms/admin";
 import {
-	Input,
-	Label,
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-	Textarea,
-	TagInput,
-	Button,
-	Accordion,
-	AccordionTrigger,
-	AccordionContent,
-	AccordionItem,
-	ReadonlyTagInput,
-	Fullscreen,
-	Center,
-	Loader,
-	AutoComplete,
+    Input,
+    Label,
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Textarea,
+    TagInput,
+    Button,
+    Accordion,
+    AccordionTrigger,
+    AccordionContent,
+    AccordionItem,
+    ReadonlyTagInput,
+    Fullscreen,
+    Center,
+    Loader,
+    AutoComplete,
 } from "@shared/ui";
 import {Nullable} from "@shared/lib/types";
 import {CourseType, courseTypeToLabel} from "@entities/course";
@@ -48,543 +50,566 @@ import {UploadZone} from "@features/upload";
 import {ROUTER_PATHS} from "@app/router/paths";
 
 const schema = z.object({
-	type: z.nativeEnum(CourseType),
-	name: z.string().min(1),
-	language: z.nativeEnum(Language),
-	hook: z.string().min(1),
-	audience: z.array(z.object({}).required()).min(1),
-	description: z.string().min(1),
-	preview: z.object({}).required(),
-	duration: z.number(),
-	price: z.number().nullable(),
-	author: z
-		.object({
-			search: z.string(),
-			data: z.object({}).required(),
-		})
-		.required(),
+    type: z.nativeEnum(CourseType),
+    name: z.string().min(1),
+    language: z.nativeEnum(Language),
+    hook: z.string().min(1),
+    audience: z.array(z.object({}).required()).min(1),
+    description: z.string().min(1),
+    preview: z.object({}).required(),
+    duration: z.number(),
+    price: z.number().nullable(),
+    author: z
+        .object({
+            search: z.string(),
+            data: z.object({}).required(),
+        })
+        .required(),
 });
 
 enum Tab {
-	GENERAL,
-	LESSONS,
+    GENERAL,
+    LESSONS,
 }
 
 export const InternalAdminCoursePage: React.FC = () => {
-	const [, navigate] = useLocation();
+    const [, navigate] = useLocation();
 
-	const {id} = useParams() as {id: string};
-	const {course, isFetching} = useCourse(id);
+    const {id} = useParams() as {id: string};
+    const {course, isFetching} = useCourse(id);
 
-	const {
-		control,
-		register,
-		formState,
-		handleSubmit,
-		setValue,
-		watch,
-		getValues,
-	} = useForm<{
-		type: Nullable<CourseType>;
-		name: Nullable<string>;
-		language: Nullable<Language>;
-		hook: Nullable<string>;
-		audience: Tag[];
-		description: Nullable<string>;
-		preview: Nullable<UploadedFile>;
-		duration: Nullable<number>;
-		price: Nullable<number>;
-		author: {
-			search: string;
-			data: Nullable<Expert>;
-		};
-	}>({
-		mode: "onChange",
-		resolver: zodResolver(schema),
-		values: {
-			type: course?.type || null,
-			name: course?.name || null,
-			language: course?.language || null,
-			hook: course?.hook || null,
-			audience:
-				course?.audience.map((a, idx) => ({
-					id: String(idx),
-					text: a,
-				})) || [],
-			description: course?.description || null,
-			duration: course?.duration || null,
-			price: course?.price || null,
-			preview: course?.preview || null,
-			author: {
-				search: "",
-				data: course?.author || null,
-			},
-		},
-	});
+    const [tab, setTab] = useState(Tab.GENERAL);
 
-	const [author, preview] = watch(["author", "preview"]);
+    const {
+        control,
+        register,
+        formState,
+        handleSubmit,
+        setValue,
+        watch,
+        getValues,
+    } = useForm<{
+        type: Nullable<CourseType>;
+        name: Nullable<string>;
+        language: Nullable<Language>;
+        hook: Nullable<string>;
+        audience: Tag[];
+        description: Nullable<string>;
+        preview: Nullable<UploadedFile>;
+        duration: Nullable<number>;
+        price: Nullable<number>;
+        author: {
+            search: string;
+            data: Nullable<Expert>;
+        };
+    }>({
+        mode: "onChange",
+        resolver: zodResolver(schema),
+        values: {
+            type: course?.type || null,
+            name: course?.name || null,
+            language: course?.language || null,
+            hook: course?.hook || null,
+            audience:
+                course?.audience.map((a, idx) => ({
+                    id: String(idx),
+                    text: a,
+                })) || [],
+            description: course?.description || null,
+            duration: course?.duration || null,
+            price: course?.price || null,
+            preview: course?.preview || null,
+            author: {
+                search: "",
+                data: course?.author || null,
+            },
+        },
+    });
 
-	const [search] = useDebounce(author.search, 300);
-	const {experts, isFetching: areExpertsFetching} = useSearchExperts({
-		query: search,
-	});
+    const [author, preview] = watch(["author", "preview"]);
 
-	const {editCourse} = useEditCourse();
-	const {deleteCourse} = useDeleteCourse();
-	const {deleteLesson} = useDeleteLesson();
+    const [search] = useDebounce(author.search, 300);
+    const {experts, isFetching: areExpertsFetching} = useSearchExperts({
+        query: search,
+    });
 
-	if (isFetching)
-		return (
-			<Fullscreen>
-				<Center>
-					<Loader />
-				</Center>
-			</Fullscreen>
-		);
+    const {editCourse} = useEditCourse();
+    const {deleteCourse} = useDeleteCourse();
+    const {deleteLesson} = useDeleteLesson();
 
-	return (
-		<AdminTemplate title="Редактирование курса">
-			<RXTabs.Root defaultValue={String(Tab.GENERAL)}>
-				<RXTabs.List className="flex space-x-12 items-center mb-24">
-					{[
-						{
-							id: Tab.GENERAL,
-							label: "Общая информация",
-						},
-						{
-							id: Tab.LESSONS,
-							label: "Уроки",
-						},
-					].map(({id, label}) => (
-						<RXTabs.Trigger
-							key={id}
-							value={String(id)}
-							className="py-8 px-16 rounded-8 xs:text-24 xs:px-24 text-center border border-[#03c1cd] data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-[#fff] transition-colors duration-300"
-						>
-							<span>{label}</span>
-						</RXTabs.Trigger>
-					))}
-				</RXTabs.List>
+    if (isFetching)
+        return (
+            <Fullscreen>
+                <Center>
+                    <Loader />
+                </Center>
+            </Fullscreen>
+        );
 
-				<RXTabs.Content value={String(Tab.GENERAL)}>
-					<form
-						onSubmit={handleSubmit(() => {
-							const form = getValues();
+    return (
+        <AdminTemplate title="Редактирование курса">
+            <RXTabs.Root
+                defaultValue={String(tab)}
+                onValueChange={(tab) => {
+                    setTab(+tab);
+                }}
+            >
+                <RXTabs.List className="flex space-x-12 items-center mb-24">
+                    {[
+                        {
+                            id: Tab.GENERAL,
+                            label: "Общая информация",
+                        },
+                        {
+                            id: Tab.LESSONS,
+                            label: "Уроки",
+                        },
+                    ].map(({id, label}) => (
+                        <RXTabs.Trigger
+                            key={id}
+                            value={String(id)}
+                            className="py-8 px-16 rounded-8 xs:text-24 xs:px-24 text-center border border-[#03c1cd] data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-[#fff] transition-colors duration-300"
+                        >
+                            <span>{label}</span>
+                        </RXTabs.Trigger>
+                    ))}
+                </RXTabs.List>
 
-							editCourse({
-								id: course!.id,
-								type: form.type!,
-								name: form.name!,
-								language: form.language!,
-								price: form.price!,
-								audience: form.audience.map((t) => t.text),
-								hook: form.hook!,
-								duration: form.duration!,
-								description: form.description!,
-								previewFileId: form.preview!.id,
-								authorId: form.author.data!.id,
-							}).then(() => {
-								navigate(ROUTER_PATHS.INTERNAL.ADMIN.COURSES);
-							});
-						})}
-						className="flex flex-col space-y-48"
-					>
-						<div className="flex flex-col bg-[#fbfbfb] shadow-even-sm space-y-36 p-36 rounded-lg">
-							<h5 className="text-28 font-semibold">
-								Информация
-							</h5>
+                <RXTabs.Content value={String(Tab.GENERAL)}>
+                    <form
+                        onSubmit={handleSubmit(() => {
+                            const form = getValues();
 
-							<div className="flex flex-col space-y-24">
-								<div className="flex items-center space-x-28">
-									<div className="flex flex-col space-y-8 w-1/2">
-										<Label>Тип курса</Label>
+                            editCourse({
+                                id: course!.id,
+                                type: form.type!,
+                                name: form.name!,
+                                language: form.language!,
+                                price: form.price!,
+                                audience: form.audience.map((t) => t.text),
+                                hook: form.hook!,
+                                duration: form.duration!,
+                                description: form.description!,
+                                previewFileId: form.preview!.id,
+                                authorId: form.author.data!.id,
+                            }).then(() => {
+                                toast.success("Редактирование успешно.");
 
-										<Controller
-											name="type"
-											control={control}
-											render={({
-												field: {ref, ...field},
-											}) => (
-												<Select
-													{...field}
-													value={
-														field.value || undefined
-													}
-													onValueChange={
-														field.onChange
-													}
-												>
-													<SelectTrigger>
-														<SelectValue placeholder="Выберите тип курса" />
-													</SelectTrigger>
+                                navigate(ROUTER_PATHS.INTERNAL.ADMIN.COURSES);
+                            });
+                        })}
+                        className="flex flex-col space-y-48"
+                    >
+                        <div className="flex flex-col bg-[#fbfbfb] shadow-even-sm space-y-36 p-36 rounded-lg">
+                            <h5 className="text-28 font-semibold">
+                                Информация
+                            </h5>
 
-													<SelectContent>
-														<SelectGroup>
-															{Object.values(
-																CourseType,
-															).map((value) => (
-																<SelectItem
-																	key={value}
-																	value={
-																		value
-																	}
-																>
-																	{courseTypeToLabel(
-																		value,
-																	)}
-																</SelectItem>
-															))}
-														</SelectGroup>
-													</SelectContent>
-												</Select>
-											)}
-										/>
-									</div>
+                            <div className="flex flex-col space-y-24">
+                                <div className="flex items-center space-x-28">
+                                    <div className="flex flex-col space-y-8 w-1/2">
+                                        <Label>Тип курса</Label>
 
-									<div className="flex flex-col space-y-8 w-1/2">
-										<Label htmlFor="name">Название</Label>
+                                        <Controller
+                                            name="type"
+                                            control={control}
+                                            render={({
+                                                field: {ref, ...field},
+                                            }) => (
+                                                <Select
+                                                    {...field}
+                                                    value={
+                                                        field.value || undefined
+                                                    }
+                                                    onValueChange={
+                                                        field.onChange
+                                                    }
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Выберите тип курса" />
+                                                    </SelectTrigger>
 
-										<Input
-											id="name"
-											type="text"
-											placeholder="Введите название курса"
-											{...register("name")}
-										/>
-									</div>
-								</div>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            {Object.values(
+                                                                CourseType,
+                                                            ).map((value) => (
+                                                                <SelectItem
+                                                                    key={value}
+                                                                    value={
+                                                                        value
+                                                                    }
+                                                                >
+                                                                    {courseTypeToLabel(
+                                                                        value,
+                                                                    )}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
+                                        />
+                                    </div>
 
-								<div className="flex items-center space-x-28">
-									<div className="flex flex-col space-y-8 w-1/2">
-										<Label>Язык курса</Label>
+                                    <div className="flex flex-col space-y-8 w-1/2">
+                                        <Label htmlFor="name">Название</Label>
 
-										<Controller
-											name="language"
-											control={control}
-											render={({
-												field: {ref, ...field},
-											}) => (
-												<Select
-													{...field}
-													value={
-														field.value || undefined
-													}
-													onValueChange={
-														field.onChange
-													}
-												>
-													<SelectTrigger>
-														<SelectValue placeholder="Выберите язык курса" />
-													</SelectTrigger>
+                                        <Input
+                                            id="name"
+                                            type="text"
+                                            placeholder="Введите название курса"
+                                            {...register("name")}
+                                        />
+                                    </div>
+                                </div>
 
-													<SelectContent>
-														<SelectGroup>
-															{Object.values(
-																Language,
-															).map((value) => (
-																<SelectItem
-																	key={value}
-																	value={
-																		value
-																	}
-																>
-																	{languageToLabel(
-																		value,
-																	)}
-																</SelectItem>
-															))}
-														</SelectGroup>
-													</SelectContent>
-												</Select>
-											)}
-										/>
-									</div>
+                                <div className="flex items-center space-x-28">
+                                    <div className="flex flex-col space-y-8 w-1/2">
+                                        <Label>Язык курса</Label>
 
-									<div className="flex flex-col space-y-8 w-1/2">
-										<Label htmlFor="price">Цена</Label>
+                                        <Controller
+                                            name="language"
+                                            control={control}
+                                            render={({
+                                                field: {ref, ...field},
+                                            }) => (
+                                                <Select
+                                                    {...field}
+                                                    value={
+                                                        field.value || undefined
+                                                    }
+                                                    onValueChange={
+                                                        field.onChange
+                                                    }
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Выберите язык курса" />
+                                                    </SelectTrigger>
 
-										<Input
-											id="price"
-											type="number"
-											min={0}
-											placeholder="Введите цену курса"
-										/>
-									</div>
-								</div>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            {Object.values(
+                                                                Language,
+                                                            ).map((value) => (
+                                                                <SelectItem
+                                                                    key={value}
+                                                                    value={
+                                                                        value
+                                                                    }
+                                                                >
+                                                                    {languageToLabel(
+                                                                        value,
+                                                                    )}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
+                                        />
+                                    </div>
 
-								<div className="flex flex-col space-y-8">
-									<Label htmlFor="duration">
-										Длительность (в месяцах)
-									</Label>
+                                    <div className="flex flex-col space-y-8 w-1/2">
+                                        <Label htmlFor="price">
+                                            Цена{" "}
+                                            <span className="text-[0.75em] text-[#434343]">
+                                                (опционально, если не языковой)
+                                            </span>
+                                        </Label>
 
-									<Input
-										id="duration"
-										type="number"
-										placeholder="Введите длительность курса"
-										{...register("duration", {
-											valueAsNumber: true,
-										})}
-									/>
-								</div>
+                                        <Input
+                                            id="price"
+                                            type="number"
+                                            min={0}
+                                            placeholder="Введите цену курса"
+                                        />
+                                    </div>
+                                </div>
 
-								<div className="flex flex-col space-y-8">
-									<Label>Аудитория</Label>
+                                <div className="flex flex-col space-y-8">
+                                    <Label htmlFor="duration">
+                                        Длительность{" "}
+                                        <span className="text-[0.75em] text-[#434343]">
+                                            (в месяцах)
+                                        </span>
+                                    </Label>
 
-									<Controller
-										name="audience"
-										control={control}
-										render={({field}) => (
-											<TagInput
-												placeholder="Введите аудиторию курса"
-												tags={field.value}
-												setTags={field.onChange}
-											/>
-										)}
-									/>
-								</div>
+                                    <Input
+                                        id="duration"
+                                        type="number"
+                                        placeholder="Введите длительность курса"
+                                        {...register("duration", {
+                                            valueAsNumber: true,
+                                        })}
+                                    />
+                                </div>
 
-								<div className="flex flex-col space-y-8">
-									<Label htmlFor="hook">Хук</Label>
+                                <div className="flex flex-col space-y-8">
+                                    <Label>
+                                        Аудитория{" "}
+                                        <span className="text-[0.75em] text-[#434343]">
+                                            (добавлять через Enter)
+                                        </span>
+                                    </Label>
 
-									<Input
-										id="hook"
-										type="text"
-										placeholder="Введите вызывающее описание"
-										{...register("hook")}
-									/>
-								</div>
+                                    <Controller
+                                        name="audience"
+                                        control={control}
+                                        render={({field}) => (
+                                            <TagInput
+                                                placeholder="Введите аудиторию курса"
+                                                tags={field.value}
+                                                setTags={field.onChange}
+                                            />
+                                        )}
+                                    />
+                                </div>
 
-								<div className="flex flex-col space-y-8">
-									<Label htmlFor="description">
-										Описание
-									</Label>
+                                <div className="flex flex-col space-y-8">
+                                    <Label htmlFor="hook">Хук</Label>
 
-									<Textarea
-										id="description"
-										placeholder="Введите описание курса"
-										{...register("description")}
-									/>
-								</div>
-							</div>
-						</div>
+                                    <Input
+                                        id="hook"
+                                        type="text"
+                                        placeholder="Введите вызывающее описание"
+                                        {...register("hook")}
+                                    />
+                                </div>
 
-						<div className="flex flex-col bg-[#fbfbfb] shadow-even-sm space-y-36 p-36 rounded-lg">
-							<h5 className="text-28 font-semibold">
-								Видео-превью
-							</h5>
+                                <div className="flex flex-col space-y-8">
+                                    <Label htmlFor="description">
+                                        Описание
+                                    </Label>
 
-							<div className="flex flex-col space-y-24">
-								<UploadZone
-									key={preview?.name}
-									accept="video/mp4,video/x-m4v,video/*"
-									fileName={preview?.name}
-									onUpload={(file) =>
-										setValue("preview", file, {
-											shouldValidate: true,
-										})
-									}
-								>
-									Выберите файл для видео-превью
-								</UploadZone>
-							</div>
-						</div>
+                                    <Textarea
+                                        id="description"
+                                        placeholder="Введите описание курса"
+                                        {...register("description")}
+                                    />
+                                </div>
+                            </div>
+                        </div>
 
-						<div className="flex flex-col bg-[#fbfbfb] shadow-even-sm space-y-36 p-36 rounded-lg">
-							<h5 className="text-28 font-semibold">
-								Автор курса
-							</h5>
+                        <div className="flex flex-col bg-[#fbfbfb] shadow-even-sm space-y-36 p-36 rounded-lg">
+                            <h5 className="text-28 font-semibold">
+                                Видео-превью
+                            </h5>
 
-							<div className="flex flex-col space-y-24">
-								<Controller
-									key={author.data?.id}
-									name="author"
-									control={control}
-									render={({field}) => (
-										<AutoComplete
-											isLoading={areExpertsFetching}
-											options={
-												experts?.map((e) => ({
-													value: e.id,
-													label: `${e.firstName} ${e.lastName}`,
-												})) || []
-											}
-											placeholder="Найдите эксперта"
-											onInputChange={(search) => {
-												field.onChange({
-													...field.value,
-													search,
-												});
-											}}
-											input={field.value.search}
-											onValueChange={(value) => {
-												field.onChange({
-													...field.value,
-													data:
-														experts?.find(
-															(e) =>
-																e.id ===
-																value.value,
-														) || null,
-												});
-											}}
-											value={
-												author.data
-													? {
-															label: `${author.data.firstName} ${author.data.lastName}`,
-															value: author.data
-																.id,
-														}
-													: undefined
-											}
-										/>
-									)}
-								/>
-							</div>
-						</div>
+                            <div className="flex flex-col space-y-24">
+                                <UploadZone
+                                    key={preview?.name}
+                                    accept="video/mp4,video/x-m4v,video/*"
+                                    fileName={preview?.name}
+                                    onUpload={(file) =>
+                                        setValue("preview", file, {
+                                            shouldValidate: true,
+                                        })
+                                    }
+                                >
+                                    Выберите файл для видео-превью
+                                </UploadZone>
+                            </div>
+                        </div>
 
-						<div className="flex justify-end items-center space-x-12">
-							<Button
-								onClick={() => {
-									deleteCourse(course!.id).then(() => {
-										navigate(
-											ROUTER_PATHS.INTERNAL.ADMIN.COURSES,
-										);
-									});
-								}}
-								color="error"
-								type="button"
-							>
-								Удалить
-							</Button>
+                        <div className="flex flex-col bg-[#fbfbfb] shadow-even-sm space-y-36 p-36 rounded-lg">
+                            <h5 className="text-28 font-semibold">
+                                Автор курса
+                            </h5>
 
-							<Button>Редактировать</Button>
-						</div>
-					</form>
-				</RXTabs.Content>
+                            <div className="flex flex-col space-y-24">
+                                <Controller
+                                    key={author.data?.id}
+                                    name="author"
+                                    control={control}
+                                    render={({field}) => (
+                                        <AutoComplete
+                                            isLoading={areExpertsFetching}
+                                            options={
+                                                experts?.map((e) => ({
+                                                    value: e.id,
+                                                    label: `${e.firstName} ${e.lastName}`,
+                                                })) || []
+                                            }
+                                            placeholder="Найдите эксперта"
+                                            onInputChange={(search) => {
+                                                field.onChange({
+                                                    ...field.value,
+                                                    search,
+                                                });
+                                            }}
+                                            input={field.value.search}
+                                            onValueChange={(value) => {
+                                                field.onChange({
+                                                    ...field.value,
+                                                    data:
+                                                        experts?.find(
+                                                            (e) =>
+                                                                e.id ===
+                                                                value.value,
+                                                        ) || null,
+                                                });
+                                            }}
+                                            value={
+                                                author.data
+                                                    ? {
+                                                          label: `${author.data.firstName} ${author.data.lastName}`,
+                                                          value: author.data.id,
+                                                      }
+                                                    : undefined
+                                            }
+                                        />
+                                    )}
+                                />
+                            </div>
+                        </div>
 
-				<RXTabs.Content value={String(Tab.LESSONS)}>
-					<div className="flex flex-col space-y-48">
-						<div className="flex flex-col bg-[#fbfbfb] shadow-even-sm space-y-36 p-36 rounded-lg">
-							<h5 className="text-28 font-semibold">Уроки</h5>
+                        <div className="flex justify-end items-center space-x-12">
+                            <Button
+                                onClick={() => {
+                                    deleteCourse(course!.id).then(() => {
+                                        navigate(
+                                            ROUTER_PATHS.INTERNAL.ADMIN.COURSES,
+                                        );
+                                    });
+                                }}
+                                color="error"
+                                type="button"
+                            >
+                                Удалить
+                            </Button>
 
-							<Accordion
-								type="multiple"
-								className="flex flex-col space-y-40"
-							>
-								{course?.lessons.map((lesson) => (
-									<AccordionItem
-										key={lesson.id}
-										value={lesson.id}
-									>
-										<AccordionTrigger>
-											{lesson.name}
-										</AccordionTrigger>
+                            <Button disabled={!formState.isValid}>
+                                Редактировать
+                            </Button>
+                        </div>
+                    </form>
+                </RXTabs.Content>
 
-										<AccordionContent>
-											<div className="flex flex-col space-y-24">
-												<video
-													className="w-full h-auto rounded-12"
-													controls
-													src={`${lesson.video.url}#t=0.1`}
-													preload="metadata"
-												/>
+                <RXTabs.Content value={String(Tab.LESSONS)}>
+                    <div className="flex flex-col space-y-48">
+                        <div className="flex flex-col bg-[#fbfbfb] shadow-even-sm space-y-36 p-36 rounded-lg">
+                            <h5 className="text-28 font-semibold">Уроки</h5>
 
-												<ReadonlyTagInput
-													tags={lesson.topics}
-												/>
+                            <Accordion
+                                type="multiple"
+                                className="flex flex-col space-y-40"
+                            >
+                                {course?.lessons.map((lesson) => (
+                                    <AccordionItem
+                                        key={lesson.id}
+                                        value={lesson.id}
+                                    >
+                                        <AccordionTrigger>
+                                            {lesson.name}
+                                        </AccordionTrigger>
 
-												<HomeworkForm
-													homework={{
-														type: lesson.homework
-															.type,
-														test: lesson.homework.test?.questions.map(
-															(q) => ({
-																text: q.text,
-																answers:
-																	q.answers.map(
-																		(a) =>
-																			a.text,
-																	),
-																correctAnswerIndex:
-																	q.answers.findIndex(
-																		(a) =>
-																			a.isCorrect,
-																	),
-															}),
-														),
-														text: lesson.homework
-															.text,
-													}}
-													disabled
-												/>
+                                        <AccordionContent>
+                                            <div className="flex flex-col space-y-24">
+                                                <video
+                                                    className="w-full h-auto rounded-12"
+                                                    controls
+                                                    src={`${lesson.video.url}#t=0.1`}
+                                                    preload="metadata"
+                                                />
 
-												<div className="flex justify-end items-center space-x-12">
-													<Button
-														type="button"
-														color="error"
-														onClick={() => {
-															deleteLesson({
-																courseId:
-																	course!.id,
-																lessonId:
-																	lesson.id,
-															});
-														}}
-													>
-														Удалить
-													</Button>
+                                                <ReadonlyTagInput
+                                                    tags={lesson.topics}
+                                                />
 
-													<EditLesson
-														lesson={{
-															...lesson,
-															homework: {
-																type: lesson
-																	.homework
-																	.type,
-																test: lesson.homework.test?.questions.map(
-																	(q) => ({
-																		text: q.text,
-																		answers:
-																			q.answers.map(
-																				(
-																					a,
-																				) =>
-																					a.text,
-																			),
-																		correctAnswerIndex:
-																			q.answers.findIndex(
-																				(
-																					a,
-																				) =>
-																					a.isCorrect,
-																			),
-																	}),
-																),
-																text: lesson
-																	.homework
-																	.text,
-															},
-														}}
-													>
-														<Button type="button">
-															Редактировать
-														</Button>
-													</EditLesson>
-												</div>
-											</div>
-										</AccordionContent>
-									</AccordionItem>
-								))}
-							</Accordion>
-						</div>
+                                                <HomeworkForm
+                                                    homework={{
+                                                        type: lesson.homework
+                                                            .type,
+                                                        test: lesson.homework.test?.questions.map(
+                                                            (q) => ({
+                                                                text: q.text,
+                                                                answers:
+                                                                    q.answers.map(
+                                                                        (a) =>
+                                                                            a.text,
+                                                                    ),
+                                                                correctAnswerIndex:
+                                                                    q.answers.findIndex(
+                                                                        (a) =>
+                                                                            a.isCorrect,
+                                                                    ),
+                                                            }),
+                                                        ),
+                                                        text: lesson.homework
+                                                            .text,
+                                                    }}
+                                                    disabled
+                                                />
 
-						<div className="flex justify-end items-center">
-							<CreateLesson>
-								<Button type="button">Создать урок</Button>
-							</CreateLesson>
-						</div>
-					</div>
-				</RXTabs.Content>
-			</RXTabs.Root>
-		</AdminTemplate>
-	);
+                                                <div className="flex justify-end items-center space-x-12">
+                                                    <Button
+                                                        type="button"
+                                                        color="error"
+                                                        onClick={() => {
+                                                            deleteLesson({
+                                                                courseId:
+                                                                    course!.id,
+                                                                lessonId:
+                                                                    lesson.id,
+                                                            });
+                                                        }}
+                                                    >
+                                                        Удалить
+                                                    </Button>
+
+                                                    <EditLesson
+                                                        lesson={{
+                                                            ...lesson,
+                                                            homework: {
+                                                                type: lesson
+                                                                    .homework
+                                                                    .type,
+                                                                test: lesson.homework.test?.questions.map(
+                                                                    (q) => ({
+                                                                        text: q.text,
+                                                                        answers:
+                                                                            q.answers.map(
+                                                                                (
+                                                                                    a,
+                                                                                ) =>
+                                                                                    a.text,
+                                                                            ),
+                                                                        correctAnswerIndex:
+                                                                            q.answers.findIndex(
+                                                                                (
+                                                                                    a,
+                                                                                ) =>
+                                                                                    a.isCorrect,
+                                                                            ),
+                                                                    }),
+                                                                ),
+                                                                text: lesson
+                                                                    .homework
+                                                                    .text,
+                                                            },
+                                                        }}
+                                                    >
+                                                        <Button type="button">
+                                                            Редактировать
+                                                        </Button>
+                                                    </EditLesson>
+                                                </div>
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                ))}
+                            </Accordion>
+                        </div>
+
+                        <div className="flex justify-end items-center">
+                            <CreateLesson>
+                                <Button type="button">Создать урок</Button>
+                            </CreateLesson>
+                        </div>
+                    </div>
+                </RXTabs.Content>
+            </RXTabs.Root>
+        </AdminTemplate>
+    );
 };

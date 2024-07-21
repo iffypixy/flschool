@@ -8,41 +8,41 @@ import {ROUTER_PATHS} from "./paths";
 type RouteRole = ViewerRole | "GUEST";
 
 export const routeRole = (viewer?: Nullable<Viewer>): RouteRole =>
-	viewer ? viewer.role : "GUEST";
+    viewer ? viewer.role : "GUEST";
 
 interface RoleRouteProps extends RouteProps {
-	roles: Array<RouteRole>;
+    roles: Array<RouteRole>;
 }
 
 export const RoleRoute: React.FC<RoleRouteProps> = ({roles, ...props}) => {
-	const {viewer} = useViewer();
+    const {viewer} = useViewer();
 
-	const role: RouteRole = viewer?.role || "GUEST";
+    const role: RouteRole = viewer?.role || "GUEST";
 
-	if (roles.includes(role)) return <Route {...props} />;
-	else return <Redirect to={ROUTER_PATHS.HOME} />;
+    if (roles.includes(role)) return <Route {...props} />;
+    else return <Redirect to={ROUTER_PATHS.HOME} />;
 };
 
 export const PublicOnlyRoute: React.FC<RouteProps> = (props) => (
-	<RoleRoute {...props} roles={["GUEST"]} />
+    <RoleRoute {...props} roles={["GUEST"]} />
 );
 
 export const PublicRoute: React.FC<RouteProps> = (props) => (
-	<RoleRoute {...props} roles={["GUEST", "USER"]} />
+    <RoleRoute {...props} roles={["GUEST", "USER", "EXPERT", "ADMIN"]} />
 );
 
 export const PrivateRoute: React.FC<RouteProps> = (props) => (
-	<RoleRoute {...props} roles={["USER"]} />
+    <RoleRoute {...props} roles={["USER", "EXPERT", "ADMIN"]} />
 );
 
 export const InternalAdminRoute: React.FC<RouteProps> = (props) => (
-	<RoleRoute {...props} roles={["ADMIN"]} />
+    <RoleRoute {...props} roles={["ADMIN"]} />
 );
 
 export const InternalExpertRoute: React.FC<RouteProps> = (props) => (
-	<RoleRoute {...props} roles={["EXPERT"]} />
+    <RoleRoute {...props} roles={["EXPERT"]} />
 );
 
 export const AuthenticatedRoute: React.FC<RouteProps> = (props) => (
-	<RoleRoute {...props} roles={["USER", "EXPERT", "ADMIN"]} />
+    <RoleRoute {...props} roles={["USER", "EXPERT", "ADMIN"]} />
 );
