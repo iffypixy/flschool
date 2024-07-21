@@ -170,7 +170,7 @@ export const Header: React.FC = () => {
 
                                 <nav>
                                     <ul className="flex flex-col space-y-24 font-normal text-22">
-                                        {isAuthenticated ? (
+                                        {isAuthenticated && (
                                             <>
                                                 <li>
                                                     <Link
@@ -187,7 +187,9 @@ export const Header: React.FC = () => {
 
                                                 <li>
                                                     <Link
-                                                        to={ROUTER_PATHS.HOME}
+                                                        to={
+                                                            ROUTER_PATHS.MY_COURSES
+                                                        }
                                                         className="flex items-center gap-16 text-[#61677F]"
                                                     >
                                                         <Icon.Nav.Courses className="w-24 h-auto" />
@@ -196,18 +198,18 @@ export const Header: React.FC = () => {
                                                     </Link>
                                                 </li>
                                             </>
-                                        ) : (
-                                            <li>
-                                                <Link
-                                                    to={ROUTER_PATHS.HOME}
-                                                    className="flex items-center gap-16 text-[#61677F]"
-                                                >
-                                                    <Icon.Nav.Person className="w-24 h-auto" />
-
-                                                    <span>Главная</span>
-                                                </Link>
-                                            </li>
                                         )}
+
+                                        <li>
+                                            <Link
+                                                to={ROUTER_PATHS.HOME}
+                                                className="flex items-center gap-16 text-[#61677F]"
+                                            >
+                                                <Icon.Nav.Person className="w-24 h-auto" />
+
+                                                <span>Главная</span>
+                                            </Link>
+                                        </li>
 
                                         {[
                                             {
@@ -251,13 +253,6 @@ export const Header: React.FC = () => {
                                                 ),
                                                 path: ROUTER_PATHS.VACANCIES,
                                                 label: "Вакансии",
-                                            },
-                                            {
-                                                icon: (
-                                                    <Icon.Nav.Courses className="w-26 h-auto text-[#434343]" />
-                                                ),
-                                                path: ROUTER_PATHS.MY_COURSES,
-                                                label: "Мои курсы",
                                             },
                                         ].map(({icon, path, label}) => (
                                             <li key={path}>
