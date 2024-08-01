@@ -16,30 +16,32 @@ import {VacancyModule} from "@modules/vacancy";
 import {InternalAdminModule} from "@modules/internal/admin";
 import {InternalExpertModule} from "@modules/internal/expert";
 import {ConsultationModule} from "@modules/consultation";
+import {AuxlModule} from "@modules/auxl";
 
 @Module({
-	imports: [
-		ConfigModule.forRoot({
-			load: [config.client, config.oauth2, config.s3],
-			envFilePath: ".env",
-			isGlobal: true,
-		}),
-		PrismaModule.forRoot(),
-		OAuth2Module,
-		AuthModule,
-		AlumnusModule,
-		CourseModule,
-		ExpertModule,
-		HomeworkModule,
-		ProfileModule,
-		PromocodeModule,
-		UploadModule,
-		VacancyModule,
-		ConsultationModule,
-		InternalAdminModule,
-		InternalExpertModule,
-	],
-	controllers: [],
-	providers: [],
+    imports: [
+        ConfigModule.forRoot({
+            load: [config.client, config.oauth2, config.s3],
+            envFilePath: ".env",
+            isGlobal: true,
+        }),
+        PrismaModule.forRoot(),
+        OAuth2Module,
+        AuthModule,
+        AlumnusModule,
+        CourseModule,
+        ExpertModule,
+        HomeworkModule,
+        ProfileModule,
+        PromocodeModule,
+        UploadModule,
+        VacancyModule,
+        ConsultationModule,
+        InternalAdminModule,
+        InternalExpertModule,
+        AuxlModule,
+    ],
+    controllers: [],
+    providers: [],
 })
 export class AppModule {}

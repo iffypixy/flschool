@@ -6,20 +6,20 @@ import {session} from "@lib/session";
 import {AppModule} from "./app.module";
 
 async function bootstrap() {
-	const app = await NestFactory.create(AppModule, {
-		cors: {
-			origin: process.env.CLIENT_ORIGIN.split(", "),
-			credentials: true,
-		},
-	});
+    const app = await NestFactory.create(AppModule, {
+        cors: {
+            origin: process.env.CLIENT_ORIGIN.split(", "),
+            credentials: true,
+        },
+    });
 
-	app.setGlobalPrefix("api");
+    app.setGlobalPrefix("api");
 
-	app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(new ValidationPipe());
 
-	app.use(session());
+    app.use(session());
 
-	await app.listen(+process.env.PORT);
+    await app.listen(+process.env.PORT);
 }
 
 bootstrap();
