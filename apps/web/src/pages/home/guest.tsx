@@ -30,7 +30,7 @@ import telegram2 from "@shared/assets/telegram/2.png";
 import telegram3 from "@shared/assets/telegram/3.png";
 import banner1 from "@shared/assets/banner-1.png";
 import banner2 from "@shared/assets/banner-2.png";
-import hero from "@shared/assets/hero.png";
+import hero from "@shared/assets/hero2.png";
 import {ROUTER_PATHS} from "@app/router/paths";
 import {useSubmitConsultationRequest} from "@entities/consultation-request";
 
@@ -55,7 +55,7 @@ export const GuestHomePage: React.FC = () => {
                             </span>
 
                             <div className="flex space-x-12 mt-44">
-                                <Link to="/education">
+                                <Link to="/courses/education">
                                     <Button className="xs:text-22 !px-24 !py-10">
                                         Начать сейчас
                                     </Button>
@@ -65,7 +65,7 @@ export const GuestHomePage: React.FC = () => {
                             <img
                                 src={hero}
                                 alt="Hero-картинка"
-                                className="absolute max-w-[22rem] w-full h-auto right-0 -bottom-[7rem] xs:block hidden -z-10"
+                                className="absolute max-w-[20rem] w-full h-auto right-0 -bottom-[7rem] xs:block hidden -z-10"
                             />
                         </div>
 
@@ -75,7 +75,7 @@ export const GuestHomePage: React.FC = () => {
                             <img
                                 src={hero}
                                 alt="Hero-картинка"
-                                className="max-w-[29rem] h-auto inline-flex object-contain z-10 -mt-80 -ml-10 xs:hidden"
+                                className="max-w-[28rem] h-auto inline-flex object-contain z-10 -mt-80 -ml-10 xs:hidden"
                             />
                         </div>
                     </div>
