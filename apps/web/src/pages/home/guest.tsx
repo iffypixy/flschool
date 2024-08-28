@@ -168,7 +168,7 @@ export const GuestHomePage: React.FC = () => {
                 <Container>
                     <div className="flex flex-col space-y-8">
                         <h3 className="text-[#434343] font-bold text-[3.8rem]">
-                            <span className="relative text-[#fbfbfb] before:bg-gradient before:absolute before:w-full before:h-full px-10 py-8 before:rounded-xl before:-rotate-[2deg] before:left-0 before:top-0 before:-z-10">
+                            <span className="relative text-[#fbfbfb] before:bg-gradient before:absolute before:w-full before:h-full px-16 py-10 before:rounded-xl before:-rotate-[1deg] before:left-0 before:top-0 before:-z-10">
                                 Почему стоит
                             </span>{" "}
                             начать с нами?
@@ -297,7 +297,7 @@ export const GuestHomePage: React.FC = () => {
                             <span className="w-fit mr-12 xs:mr-0">
                                 Ответы на
                             </span>
-                            <span className="w-fit relative text-[#fbfbfb] px-10 py-2 before:bg-gradient before:absolute before:w-full before:h-full before:rounded-xl before:rotate-[1deg] before:left-0 before:top-0 before:-z-10">
+                            <span className="w-fit relative text-[#fbfbfb] px-16 py-4 before:bg-gradient before:absolute before:w-full before:h-full before:rounded-xl before:rotate-[1deg] before:left-0 before:top-0 before:-z-10">
                                 ваши вопросы
                             </span>
                         </h3>
